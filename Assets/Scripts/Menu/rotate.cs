@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class rotate : MonoBehaviour {
 
+    public float speed = 15f;
 	// Use this for initialization
 	void Start () {
 		
@@ -11,6 +12,6 @@ public class rotate : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        transform.Rotate(0, Time.deltaTime * 20f, 0, Space.World);
+        transform.RotateAround(transform.position, transform.up, Time.deltaTime * speed);
     }
 }
