@@ -14,4 +14,9 @@ public class ButtonTrigger : MonoBehaviour {
     {
         SceneManager.LoadScene("Prototype");
     }
+
+    public void SetMusic(float value)
+    {
+       GetComponent<AudioSource>().volume = value;
+    }
 }
