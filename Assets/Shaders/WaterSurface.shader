@@ -22,6 +22,7 @@
 
 		CGPROGRAM
 #include "UnityCG.cginc"
+#pragma target 4.5
 #pragma vertex vert
 #pragma geometry geom
 #pragma fragment frag

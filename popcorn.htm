@@ -1,0 +1,262 @@
+<html><head><title>popcorn-engine logfile</title>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<style>body
+{
+	padding-top: 44px;
+	padding-bottom: 20px;
+	padding-left: 20px;
+	padding-right: 20px;
+	background: #bbbbbb;
+	margin: 0px;
+	color: #000000;
+	font-family: Consolas, Courier;
+	font-size: 10pt;
+}
+.header2
+{
+	font-size: 72px;
+	left: 5px;
+	color: #8a98b0;
+	position: absolute;
+	top: -22px
+}
+.header
+{
+	left: 0px;
+	overflow: hidden;
+	width: 100%;
+	color: #ffffff;
+	font-family: Verdana, Arial;
+	position: absolute;
+	top: 0px;
+	height: 44px;
+	background-color: #7b8aa6
+}
+.pagetitle
+{
+	font-size: 22px;
+	z-index: 100;
+	left: 5px;
+	color: #ffffff;
+	position: absolute;
+	top: 14px;
+}
+.copyright
+{
+	font-size: 10px;
+	z-index: 60;
+	left: -8px;
+	width: 100%;
+	color: #acb6c8;
+	position: absolute;
+	top: 1px;
+	text-align: right;
+	text-decoration: none;
+}
+.build
+{
+	font-size: 12px;
+	color: #eeeeee;
+	text-decoration: none;
+}
+a.header1:link
+{
+	font-size: 30px;
+	z-index: 50;
+	left: -8px;
+	width: 100%;
+	color: #a0acc0;
+	position: absolute;
+	top: 6px;
+	text-align: right;
+	text-decoration: none;
+}
+a.header1:visited
+{
+	font-size: 30px;
+	z-index: 50;
+	left: -8px;
+	width: 100%;
+	color: #a0acc0;
+	position: absolute;
+	top: 6px;
+	text-align: right;
+	text-decoration: none;
+}
+a.header1:hover
+{
+	font-size: 30px;
+	z-index: 50;
+	left: -8px;
+	width: 100%;
+	color: #acb6c8;
+	position: absolute;
+	top: 6px;
+	text-align: right;
+	text-decoration: none;
+}
+.log_caller { color: #666666; }
+.dll { color: #800070; }
+.M   { color: #000000; background-color: #DDDDDD; white-space: pre; }
+.W   { color: #000000; background-color: #FFAA33; white-space: pre; }
+.E   { color: #FFFFFF; background-color: #DD1100; white-space: pre; }
+.EC  { color: #FFFFFF; background-color: #DD0000; white-space: pre; }
+.EI  { color: #FFFFFF; background-color: #EE0000; white-space: pre; }
+.EF  { color: #FFFFFF; background-color: #FF0000; white-space: pre; }
+</style>
+</head>
+<body>
+<div class=header id=header>
+	<a class=header1 id=header1 href="http://www.popcornfx.com/">www.popcornfx.com</a>
+	<div class=copyright id=copyright>Copyright (c) Persistant Studios 2010-2017</div>
+	<div class=header2 id=header2>PopcornFX</div>
+	<div class=pagetitle id=pagetitle>PopcornFX logfile. <font class=build>build 1.12.0.38744, Mon Sep 11 16:17:01 2017 +0200</font></i></div>
+</div><div class=M><center>... STARTUP ...</center></div>
+<div class=M>[BOOT]> License: "DiscoveryPlugin"</div>
+<div class=M>[BOOT]> PopcornFX SDK build config: ...... RELEASE</div>
+<div class=M>[BOOT]> Has debug asserts: .................... NO</div>
+<div class=M>[BOOT]> Has release asserts: ................. YES</div>
+<div class=M>[BOOT]> Has anonymous asserts: ................ NO</div>
+<div class=M>[BOOT]> Has containers monitoring: ............ NO</div>
+<div class=M>[BOOT]> Has iterators debug checks: ........... NO</div>
+<div class=M>[BOOT]> Mem debug level: ....................... 0</div>
+<div class=M>[BOOT]> Has default mem allocators: .......... YES</div>
+<div class=M>[BOOT]> |</div>
+<div class=M>[BOOT]> | ... BOOTING Kernel ...</div>
+<div class=M>[BOOT]> [Kernel_Callstack         ]:Startup        97 usec         0 bytes      0 KbTotal</div>
+<div class=M>[BOOT]> [Kernel_PerfMonitor       ]:Startup         5 usec       142 bytes      1 KbTotal</div>
+<div class=M>[BOOT]> [Kernel_Mem               ]:Startup         0 usec       103 bytes      1 KbTotal</div>
+<div class=M>[BOOT]> [Kernel_Containers        ]:Startup         0 usec         0 bytes      1 KbTotal</div>
+<div class=M>[BOOT]> [Kernel_Asserts           ]:Startup         0 usec         0 bytes      1 KbTotal</div>
+<div class=M>[BOOT]> [Kernel_Buffer            ]:Startup        21 usec      8223 bytes      9 KbTotal</div>
+<div class=M>[BOOT]> [Kernel_String            ]:Startup         1 usec      2110 bytes     11 KbTotal</div>
+<div class=M>[BOOT]> [Kernel_RTTI              ]:Startup         0 usec         0 bytes     11 KbTotal</div>
+<div class=M>[BOOT]> [Kernel_Threads           ]:Startup        24 usec         0 bytes     12 KbTotal</div>
+<div class=M>[BOOT]> [Kernel_ThreadPool        ]:Startup         0 usec         0 bytes     12 KbTotal</div>
+<div class=M>[Kernel_CapsCpu]> Multi-Core system, Single-threaded cores</div>
+<div class=M>[Kernel_CapsCpu]>      Logical processors reported by OS : 4</div>
+<div class=M>[Kernel_CapsCpu]>      Visible logical processors        : 4</div>
+<div class=M>[Kernel_CapsCpu]>      Cores                             : 4</div>
+<div class=M>[Kernel_CapsCpu]>      Physical packages                 : 1</div>
+<div class=M>[Kernel_CapsCpu]> ---- Package 0 -------------------------</div>
+<div class=M>[Kernel_CapsCpu]>      Vendor                            : GenuineIntel</div>
+<div class=M>[Kernel_CapsCpu]>      CPU Name                          : "Intel(R) Core(TM) i5-7300HQ CPU @ 2.50GHz"</div>
+<div class=M>[Kernel_CapsCpu]>      Frequency                         : 2500.0 MHz (2495.870 measured)</div>
+<div class=M>[Kernel_CapsCpu]>      Microarchitecture                 : 9E, 64-bits</div>
+<div class=M>[Kernel_CapsCpu]>      Extensions                        : VirMode DBG     PageSz4 RDTSC   MSR     PAE     MCE     CXCHG8  APIC    SEP     MTRR    PGE     </div>
+<div class=M>[Kernel_CapsCpu]>                                          MCA     CMOV    PAT     PSE36   CLFlush DebugSt ACPI    FXSR    SSnoop  HThread ThMon   ThMon2  </div>
+<div class=M>[Kernel_CapsCpu]>                                          IA64Ext PBE     ExecDis DTES64  MONITOR DS_CPL  VMEXT   ESpdStp CXCHG16 XTPR    PDCM    x2APIC  </div>
+<div class=M>[Kernel_CapsCpu]>                                          XSave   OsXSave TSCInv  MOVBE   POPCNT  CLMUL   BMI1    BMI2    F16C    AES     FMA3    RDRAND  </div>
+<div class=M>[Kernel_CapsCpu]>                                          MMX     SSE     SSE2    SSE3    SSSE3   SSE4_1  SSE4_2  AVX     AVX2    </div>
+<div class=M>[Kernel_CapsCpu]>      CPUID Leaves                      : 00000016-00000008</div>
+<div class=M>[Kernel_CapsCpu]>      CACHE TYPE                  SIZE         ASSOCIATIVITY  LINE-SIZE</div>
+<div class=M>[Kernel_CapsCpu]>         L1 Data cache              32 KB             8 ways   64-bytes</div>
+<div class=M>[Kernel_CapsCpu]>         L1 Instruction cache       32 KB             8 ways   64-bytes</div>
+<div class=M>[Kernel_CapsCpu]>         L2 Unified cache          256 KB             4 ways   64-bytes</div>
+<div class=M>[Kernel_CapsCpu]>         L3 Unified cache         6144 KB            12 ways   64-bytes</div>
+<div class=M>[Kernel_CapsCpu]>      PROCESSOR  APIC_ID  PACKAGE     CORE   THREAD    CACHES</div>
+<div class=M>[Kernel_CapsCpu]>              0     0000        0        0        0    L1D[0] L1I[0] L2[0] L3[0]</div>
+<div class=M>[Kernel_CapsCpu]>              1     0002        0        1        0    L1D[1] L1I[1] L2[1] L3[0]</div>
+<div class=M>[Kernel_CapsCpu]>              2     0004        0        2        0    L1D[2] L1I[2] L2[2] L3[0]</div>
+<div class=M>[Kernel_CapsCpu]>              3     0006        0        3        0    L1D[3] L1I[3] L2[3] L3[0]</div>
+<div class=M>[BOOT]> [Kernel_CapsCpu           ]:Startup      3566 usec      1333 bytes     13 KbTotal</div>
+<div class=M>[Kernel_CapsMem]> Detecting memory:</div>
+<div class=M>[Kernel_CapsMem]>      MEMORY        :          USED     AVAILABLE         TOTAL</div>
+<div class=M>[Kernel_CapsMem]>      physical      :     5279.0 Mb     2797.0 Mb     8077.0 Mb</div>
+<div class=M>[Kernel_CapsMem]>      page file     :     8485.0 Mb     4630.0 Mb    13115.0 Mb</div>
+<div class=M>[Kernel_CapsMem]>      virtual       :     2728.0 Mb 134215000.0 Mb 134217728.0 Mb</div>
+<div class=M>[Kernel_CapsMem]>      Address range : 00007FFFFFFEFFFF - 0000000000010000</div>
+<div class=M>[BOOT]> [Kernel_CapsMem           ]:Startup       391 usec       103 bytes     13 KbTotal</div>
+<div class=M>[BOOT]> [Kernel_Profiler          ]:Startup        14 usec      2637 bytes     16 KbTotal</div>
+<div class=M>[BOOT]> [Kernel_Checksum          ]:Startup         0 usec         0 bytes     16 KbTotal</div>
+<div class=M>[BOOT]> [Kernel_Compression       ]:Startup         0 usec         0 bytes     16 KbTotal</div>
+<div class=M>[BOOT]> [Kernel_File              ]:Startup         5 usec        39 bytes     16 KbTotal</div>
+<div class=M>[BOOT]> [Kernel_Plugins           ]:Startup         0 usec        87 bytes     16 KbTotal</div>
+<div class=M>[BOOT]> [Kernel_Scheduler         ]:Startup       399 usec     17002 bytes     33 KbTotal</div>
+<div class=M>[BOOT]> [Kernel_Resources         ]:Startup         0 usec       111 bytes     33 KbTotal</div>
+<div class=M>[BOOT]> |</div>
+<div class=M>[BOOT]> | ... BOOTING BaseObject ...</div>
+<div class=M>[BOOT]> [BaseObject               ]:Startup        66 usec     30215 bytes     63 KbTotal</div>
+<div class=M>[BOOT]> [BaseObject_HBOScope      ]:Startup       166 usec     99831 bytes    161 KbTotal</div>
+<div class=M>[BOOT]> |</div>
+<div class=M>[BOOT]> | ... BOOTING EngineUtils ...</div>
+<div class=M>[BOOT]> [EngineUtils_Random       ]:Startup         6 usec      5141 bytes    166 KbTotal</div>
+<div class=M>[BOOT]> [EngineUtils_Timeline     ]:Startup         3 usec         0 bytes    166 KbTotal</div>
+<div class=M>[BOOT]> [EngineUtils_Actions      ]:Startup       232 usec     21468 bytes    187 KbTotal</div>
+<div class=M>[BOOT]> [EngineUtils_Core         ]:Startup        61 usec     13766 bytes    200 KbTotal</div>
+<div class=M>[BOOT]> [EngineUtils_Samplers     ]:Startup        71 usec      7398 bytes    208 KbTotal</div>
+<div class=M>[BOOT]> [EngineUtils_Skeleton     ]:Startup         8 usec      3539 bytes    211 KbTotal</div>
+<div class=M>[BOOT]> |</div>
+<div class=M>[BOOT]> | ... BOOTING Compiler ...</div>
+<div class=M>[BOOT]> [Compiler                 ]:Startup       222 usec    158441 bytes    366 KbTotal</div>
+<div class=M>[BOOT]> |</div>
+<div class=M>[BOOT]> | ... BOOTING Geometrics ...</div>
+<div class=M>[BOOT]> [Geometrics_Skeleton      ]:Startup         0 usec         0 bytes    366 KbTotal</div>
+<div class=M>[BOOT]> [Geometrics_Mesh          ]:Startup        70 usec      8216 bytes    374 KbTotal</div>
+<div class=M>[Geometrics_MeshDeformers]> CPU Dispatch mapped implementation of Skeletal Skinner to 'SIMD'</div>
+<div class=M>[BOOT]> [Geometrics_MeshDeformers ]:Startup        43 usec     44285 bytes    418 KbTotal</div>
+<div class=M>[BOOT]> [Geometrics_MeshResource  ]:Startup        16 usec      4706 bytes    422 KbTotal</div>
+<div class=M>[BOOT]> [Geometrics_MeshKdTree    ]:Startup         0 usec         0 bytes    423 KbTotal</div>
+<div class=M>[BOOT]> [Geometrics_Shapes        ]:Startup       157 usec     11156 bytes    434 KbTotal</div>
+<div class=M>[BOOT]> [Geometrics_Colliders     ]:Startup         0 usec         0 bytes    434 KbTotal</div>
+<div class=M>[BOOT]> [Geometrics_Billboards    ]:Startup         0 usec         0 bytes    434 KbTotal</div>
+<div class=M>[BOOT]> [Geometrics_RectangleList ]:Startup         2 usec      4341 bytes    438 KbTotal</div>
+<div class=M>[BOOT]> |</div>
+<div class=M>[BOOT]> | ... BOOTING Imaging ...</div>
+<div class=M>[BOOT]> [Imaging_Images           ]:Startup        26 usec      4507 bytes    443 KbTotal</div>
+<div class=M>[BOOT]> |</div>
+<div class=M>[BOOT]> | ... BOOTING Particles ...</div>
+<div class=M>[Particles]> Script bindings setup : 5.54 ms</div>
+<div class=M>[BOOT]> [Particles                ]:Startup      6882 usec    898765 bytes   1320 KbTotal</div>
+<div class=M>[BOOT]> [CompilerBackend_CPU_Emulation]:Startup         3 usec     10327 bytes   1327 KbTotal</div>
+<div class=M>[Kernel_Plugins]> Registering module "CompilerBackend_CPU_Emulation" to handler "hh_compiler".</div>
+<div class=M>[Kernel_Plugins]> Registering module "PopcornFX-Image codec dds" to handler "im_codec".</div>
+<div class=M>[Kernel_Plugins]> Registering module "PopcornFX-Image codec png" to handler "im_codec".</div>
+<div class=M>[Kernel_Plugins]> Registering module "PopcornFX-Image codec targa" to handler "im_codec".</div>
+<div class=M>[Kernel_Plugins]> Registering module "PopcornFX-Image codec jpeg" to handler "im_codec".</div>
+<div class=M>[BOOT]> [UnityPlugin              ]:Startup         0 usec         0 bytes   1327 KbTotal</div>
+<div class=M>[UnityPlugin]> Startup PKFX</div>
+<div class=M>[UnityPlugin]> GraphicsEventD3D11</div>
+<div class=M>[UnityPlugin]> _PopcornFXStartup</div>
+<div class=M>[UnityPlugin]> GraphicsEventD3D11</div>
+<div class=M>[UnityPlugin]> Added Assets/StreamingAssets/PackFx for watching.</div>
+<div class=M>[UnityPlugin]> Exploring pack Assets/StreamingAssets/PackFx...</div>
+<div class=M>[UnityPlugin]>   -> Particles/ButterFly_sceneIntersect.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/CampFire_Events.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/CarHud_TextSampler.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/CoallBurn_SpatialLayers.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/ElectricalBall_pCoords.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/Explosion_vrandFunction.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/FireFly_Attractor.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/Fish_Flocking.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/FlameThrower_Ribbon.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/Grenade_MeshRenderer.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/Lightning_FpsConstraint.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/Link_lerpFunction.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/MagicSpell_Dynamic.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/MagicSpell_Static.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/Orb_rotateFunction.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/Pentacle_AnimTrack.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/Rain_ViewPosition.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/Snow_TurbSampler.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/Soul_parentFunction.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/Spark_ExternEvents.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/Spark_Triggered.pkfx</div>
+<div class=M>[UnityPlugin]>   -> Particles/WorldMap_TextureSampler.pkfx</div>
+<div class=W>[UnityPlugin]> Pack "Assets/StreamingAssets/PackFx" already loaded.</div>
+<div class=W>[UnityPlugin]> Pack "Assets/StreamingAssets/PackFx" already loaded.</div>
+<div class=W>[UnityPlugin]> Pack "Assets/StreamingAssets/PackFx" already loaded.</div>
+<div class=W>[UnityPlugin]> Pack "Assets/StreamingAssets/PackFx" already loaded.</div>
+<div class=W>[UnityPlugin]> Pack "Assets/StreamingAssets/PackFx" already loaded.</div>
+<div class=W>[UnityPlugin]> Pack "Assets/StreamingAssets/PackFx" already loaded.</div>
+<div class=W>[UnityPlugin]> Pack "Assets/StreamingAssets/PackFx" already loaded.</div>
+<div class=W>[UnityPlugin]> Pack "Assets/StreamingAssets/PackFx" already loaded.</div>
+<div class=M>[UnityPlugin]> _PopcornFXStartup</div>
+<div class=M>[UnityPlugin]> GraphicsEventD3D11</div>
+<div class=M>[UnityPlugin]> _PopcornFXStartup</div>
+<div class=M>[UnityPlugin]> GraphicsEventD3D11</div>
+<div class=M>[UnityPlugin]> _PopcornFXStartup</div>
+<div class=M>[UnityPlugin]> GraphicsEventD3D11</div>
+<div class=M>[UnityPlugin]> _PopcornFXStartup</div>
+<div class=M>[UnityPlugin]> GraphicsEventD3D11</div>
+<div class=M><center>... SHUTDOWN ...</center></div></body></html>
