@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 
 public interface IWebRequester {
 
-	UnityWebRequest Get(string url);
+	UnityWebRequest Get(string url, Dictionary<string, string> parameters);
 	
 	UnityWebRequest Post(string url, Dictionary<string,string> post);
 

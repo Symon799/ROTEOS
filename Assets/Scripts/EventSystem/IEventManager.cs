@@ -16,6 +16,4 @@ public interface IEventManager {
 
     void StopListening(Channel channel, UnityAction unityAction);
 
-    void Init();
-
 }
