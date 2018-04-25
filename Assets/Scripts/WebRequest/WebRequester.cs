@@ -5,17 +5,27 @@ using UnityEngine.Networking;
 
 public class WebRequester : IWebRequester
 {
-	private MonoBehaviour _mono;
 
-    public WebRequester()
+    public UnityWebRequest Get(string url, Dictionary<string, string> parameters)
     {
-		_mono = new MonoBehaviour();
-    }
-
-    public UnityWebRequest Get(string url)
-    {
-        UnityWebRequest request = UnityWebRequest.Get(url);
-        _mono.StartCoroutine(WaitForRequest(request));
+        string finalUrl = url;
+        if (parameters != null)
+        {
+            int count = 0;
+            finalUrl += '?';
+            foreach (KeyValuePair<string, string> arg in parameters)
+            {
+                count++;
+                finalUrl += arg.Key + '=' + arg.Value;
+                if (count != parameters.Count) {
+                    finalUrl += '&';
+                }
+            }
+            
+        }
+        Debug.Log("FINAL URL : " + finalUrl);
+        UnityWebRequest request = UnityWebRequest.Get(finalUrl);
+        request.SendWebRequest();
         return request;
     }
 
@@ -27,12 +37,24 @@ public class WebRequester : IWebRequester
             form.AddField(arg.Key, arg.Value);
         }
         UnityWebRequest request = UnityWebRequest.Post(url, form);
-        _mono.StartCoroutine(WaitForRequest(request));
+        request.SendWebRequest();
         return request;
     }
 
     public IEnumerator WaitForRequest(UnityWebRequest request)
     {
         yield return request.SendWebRequest();
+        if (request.isNetworkError || request.isHttpError)
+        {
+            Debug.Log(request.error);
+        }
+        else
+        {
+            // Show results as text
+            Debug.Log(request.downloadHandler.text);
+
+            // Or retrieve results as binary data
+            byte[] results = request.downloadHandler.data;
+        }
     }
 }
