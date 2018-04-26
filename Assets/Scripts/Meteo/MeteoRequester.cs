@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Networking;
 using Zenject;
 using CI.HttpClient;
@@ -17,6 +18,8 @@ public class MeteoRequester : MonoBehaviour
 
     public string apiKey;
     public int locationMaxTime = 20;
+    public Text text;
+
     void Start()
     {
         StartCoroutine(getMeteo());
@@ -45,7 +48,7 @@ public class MeteoRequester : MonoBehaviour
         yield return new WaitUntil(() => resultRequest.isDone);
         
         Debug.Log(resultRequest.downloadHandler.text);
-
+        text.text = resultRequest.downloadHandler.text;
         _meteoStatus.Init(resultRequest.downloadHandler.text);
         
     }
