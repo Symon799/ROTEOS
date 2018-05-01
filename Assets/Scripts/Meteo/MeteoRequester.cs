@@ -46,10 +46,11 @@ public class MeteoRequester : MonoBehaviour
         UnityWebRequest resultRequest = _webRequester.Get("http://api.openweathermap.org/data/2.5/weather", parameters);
 
         yield return new WaitUntil(() => resultRequest.isDone);
+
+        _meteoStatus.Init(resultRequest.downloadHandler.text);
         
         Debug.Log(resultRequest.downloadHandler.text);
-        text.text = resultRequest.downloadHandler.text;
-        _meteoStatus.Init(resultRequest.downloadHandler.text);
+        text.text = _meteoStatus.ToString();
         
     }
 

@@ -1,19 +1,32 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 using UnityEngine;
 
 public class MeteoStatus : IMeteoStatus
 {
-    private int _temperature;
+    private string _city;
+    private double _temperature;
     private WeatherType _weatherType;
-    public int getTemperature()
+
+    public MeteoStatus() {
+        _city = null;
+        _temperature = 20;
+        _weatherType = WeatherType.NO;
+    }
+
+    public string getCity()
+    {
+        return _city;
+    }
+    public double getTemperature()
     {
         return _temperature;
     }
-
-    public WeatherType GetWeatherType()
+    public WeatherType getWeatherType()
     {
         return _weatherType;
     }
@@ -23,13 +36,43 @@ public class MeteoStatus : IMeteoStatus
         try
         {
             XDocument weather = XDocument.Parse(toParse);
-            IEnumerable<XElement> current = weather.Elements();
-            
+            setCity(weather);
+            setTemperature(weather);
+            setWeatherType(weather);
             return true;
         }
-        catch
+        catch   
         {
             return false;
         }
+    }
+
+    private void setCity(XDocument weather) {
+         _city = weather.Element("current").Element("city").Attribute("name").Value;
+    }
+
+    private void setTemperature(XDocument weather) {
+         _temperature = Convert.ToDouble(weather.Element("current").Element("temperature").Attribute("value").Value) - 273.15f;
+    }
+
+    private void setWeatherType(XDocument weather) {
+        switch (weather.Element("current").Element("precipitation").Attribute("mode").Value) {
+            case "rain":
+                _weatherType = WeatherType.RAIN;
+                break;
+            case "snow":
+                _weatherType = WeatherType.SNOW;
+                break;
+            default:
+                _weatherType = WeatherType.NO;
+                break;
+        }
+    }
+
+    public override string ToString() {
+        string res = "Location : " + _city + 
+            "\nTemperature : " + _temperature.ToString("0.00") + "°C" +
+            "\nWeather Type : " + _weatherType;
+        return res;
     }
 }

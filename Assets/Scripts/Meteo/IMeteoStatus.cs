@@ -10,7 +10,9 @@ public enum WeatherType {
 
 public interface IMeteoStatus {
     bool Init(string toParse);
-    int getTemperature();
-    WeatherType GetWeatherType();
+
+    string getCity();
+    double getTemperature();
+    WeatherType getWeatherType();
 	
 }
