@@ -29,7 +29,7 @@ public class AgentScript : MonoBehaviour {
         if (Input.GetButtonDown("Fire1"))
             if (Physics.Raycast(ray, out hit, 100))
             {
-                if (!hit.collider.CompareTag("NonWalkable"))
+                if (!hit.collider.CompareTag("NonWalkable") && !hit.collider.CompareTag("Interact"))
                 {
                     if (IntanceParticle)
                         Destroy(IntanceParticle);
