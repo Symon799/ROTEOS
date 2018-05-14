@@ -1,7 +1,5 @@
 fileFormatVersion: 2
 guid: 933a77e798434e94b9b3336d0420b4be
-timeCreated: 1524488434
-licenseType: Free
 ModelImporter:
   serializedVersion: 22
   fileIDToRecycleName:
@@ -44,6 +42,7 @@ ModelImporter:
     9500000: //RootNode
     13700000: Body
     13700002: Cloth
+    2186277476908879412: ImportLogs
   externalObjects: {}
   materials:
     importMaterials: 1
@@ -63,6 +62,7 @@ ModelImporter:
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
+    importConstraints: 0
     animationCompression: 1
     animationRotationError: 0.5
     animationPositionError: 0.5
