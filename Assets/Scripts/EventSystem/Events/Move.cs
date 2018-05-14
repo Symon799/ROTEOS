@@ -12,6 +12,7 @@ public class Move : EventClient {
 	public float Speed = 1;
 
 	void Awake() {
+		Debug.Log("TRIGGER");
 		_basePosition = this.transform.position;
 		AddToEvents(move);
 	}

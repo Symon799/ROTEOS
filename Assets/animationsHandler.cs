@@ -17,7 +17,6 @@ public class animationsHandler : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
 	{
-		Debug.Log(agent.velocity.magnitude);
 		if (agent.velocity.magnitude == 0)
 			animator.SetBool("walking", false);
 		else
