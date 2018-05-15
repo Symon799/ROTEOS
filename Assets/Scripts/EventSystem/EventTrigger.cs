@@ -11,11 +11,7 @@ public class EventTrigger : MonoBehaviour {
 	
 	// Use this for initialization
 	public void Trigger() {
-		if (_eventManager != null) {
-			Debug.Log("GOOD");
+		if (_eventManager != null)
 			_eventManager.Trigger(channel);
-		}
-		else
-			Debug.Log("BAD");
 	}
 }

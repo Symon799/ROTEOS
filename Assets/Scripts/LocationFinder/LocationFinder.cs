@@ -18,7 +18,7 @@ public class LocationFinder : ILocationFinder
         //Wait until Unity connects to the Unity Remote, while not connected, yield return null
         while (!UnityEditor.EditorApplication.isRemoteConnected)
         {
-            Debug.Log("UNITY EDITOR : Waiting for Init...");
+            //Debug.Log("UNITY EDITOR : Waiting for Init...");
             yield return null;
         }
         #endif

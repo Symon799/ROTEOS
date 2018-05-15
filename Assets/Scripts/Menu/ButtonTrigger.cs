@@ -10,9 +10,14 @@ public class ButtonTrigger : MonoBehaviour {
         Application.Quit();
     }
 
-    public void PlayGame()
+    public void PlayProto1()
     {
         SceneManager.LoadScene("Prototype");
+    }
+
+    public void PlayProto2()
+    {
+        SceneManager.LoadScene("ButtonProto");
     }
 
     public void SetMusic(float value)

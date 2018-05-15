@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PushButton : EventTrigger {
-	void Awake() {
-		//AddToEvents(move);
-	}
+public class ActionLever : EventTrigger {
 
 	void Update () {
          if (Input.GetMouseButtonDown(0)) 
@@ -18,7 +15,7 @@ public class PushButton : EventTrigger {
                  if (hit.transform.name == transform.name)
 				 {
 				 	Debug.Log( "Object clicked");
-					GetComponent<Animator>().SetBool("pushed", true);
+					GetComponent<Animator>().SetBool("pulled", true);
 					channel = Channel.Alpha;
 					Trigger();
 				 }

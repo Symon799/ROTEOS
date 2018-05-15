@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Move : EventClient {
 	private bool _isInitial = false;
@@ -9,44 +10,46 @@ public class Move : EventClient {
 
 	private Vector3 _basePosition;
 	public Vector3 MoveToPosition;
+	public GameObject navmeshObject;
 	public float Speed = 1;
 
 	void Awake() {
-		Debug.Log("TRIGGER");
-		_basePosition = this.transform.position;
+		_basePosition = this.transform.localPosition;
 		AddToEvents(move);
 	}
 	
 	void Update() {
 		if (_isMoving) {
-			if (isArrived()) { _isMoving = false; }
-			else {
-				moveObject();
+			if (isArrived())
+			{
+				navmeshObject.GetComponent<NavMeshSurface>().BuildNavMesh();
+				_isMoving = false;
 			}
+			else
+				moveObject();
 		}
 	}
 
 	public void move() {
-		Debug.Log("MOVING PART");
 		_isMoving = true;
 		_isInitial = !_isInitial;
 	}
 
 	private void moveObject() {
-		Debug.Log("moveObject PART");
 		if (_isInitial) {
-			this.transform.position = Vector3.MoveTowards(this.transform.position, MoveToPosition, Speed * Time.deltaTime);
+			this.transform.localPosition = Vector3.MoveTowards(this.transform.localPosition, MoveToPosition, Speed * Time.deltaTime);
 		} else {
-			this.transform.position = Vector3.MoveTowards(this.transform.position, _basePosition, Speed * Time.deltaTime);
+			this.transform.localPosition = Vector3.MoveTowards(this.transform.localPosition, _basePosition, Speed * Time.deltaTime);
 		}
 		
 	}
 
 	private bool isArrived() {
 		if (_isInitial) {
-			return this.transform.position == MoveToPosition;
+			return this.transform.localPosition == MoveToPosition;
 		} else {
-			return this.transform.position == _basePosition;
+			return this.transform.localPosition == _basePosition;
 		}
+		
 	}
 }

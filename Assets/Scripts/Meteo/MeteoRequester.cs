@@ -15,10 +15,13 @@ public class MeteoRequester : MonoBehaviour
     private IMeteoStatus _meteoStatus;
     [Inject]
     private ILocationFinder _locationFinder;
+    [Inject]
+    private WeatherType weatherType;
 
     public string apiKey;
     public int locationMaxTime = 20;
     public Text text;
+    public GameObject meteoVisual;
 
     void Start()
     {
@@ -52,6 +55,25 @@ public class MeteoRequester : MonoBehaviour
         Debug.Log(resultRequest.downloadHandler.text);
         text.text = _meteoStatus.ToString();
         
+        string meteoString = _meteoStatus.ToString();
+        if (_meteoStatus.getWeatherType() == WeatherType.NO)
+        {
+            meteoVisual.transform.GetChild(0).gameObject.SetActive(true);
+            meteoVisual.transform.GetChild(1).gameObject.SetActive(false);
+            meteoVisual.transform.GetChild(2).gameObject.SetActive(false);
+        }
+        else if (_meteoStatus.getWeatherType() == WeatherType.RAIN)
+        {
+            meteoVisual.transform.GetChild(0).gameObject.SetActive(false);
+            meteoVisual.transform.GetChild(1).gameObject.SetActive(true);
+            meteoVisual.transform.GetChild(2).gameObject.SetActive(false);
+        }
+        else if (_meteoStatus.getWeatherType() == WeatherType.SNOW)
+        {
+            meteoVisual.transform.GetChild(0).gameObject.SetActive(false);
+            meteoVisual.transform.GetChild(1).gameObject.SetActive(false);
+            meteoVisual.transform.GetChild(2).gameObject.SetActive(true);
+        }
     }
 
 }
