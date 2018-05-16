@@ -53,7 +53,7 @@ public class MeteoRequester : MonoBehaviour
         _meteoStatus.Init(resultRequest.downloadHandler.text);
         
         Debug.Log(resultRequest.downloadHandler.text);
-        text.text = _meteoStatus.ToString();
+        //text.text = _meteoStatus.ToString();
         
         string meteoString = _meteoStatus.ToString();
         if (_meteoStatus.getWeatherType() == WeatherType.NO)

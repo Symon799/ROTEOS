@@ -14,9 +14,7 @@ public class ActionLever : EventTrigger {
 			 {
                  if (hit.transform.name == transform.name)
 				 {
-				 	Debug.Log( "Object clicked");
 					GetComponent<Animator>().SetBool("pulled", true);
-					channel = Channel.Alpha;
 					Trigger();
 				 }
              }

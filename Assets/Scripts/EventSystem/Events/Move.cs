@@ -5,9 +5,7 @@ using UnityEngine.AI;
 
 public class Move : EventClient {
 	private bool _isInitial = false;
-
 	private bool _isMoving = false;
-
 	private Vector3 _basePosition;
 	public Vector3 MoveToPosition;
 	public GameObject navmeshObject;

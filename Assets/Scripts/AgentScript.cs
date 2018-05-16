@@ -5,10 +5,10 @@ using UnityEngine.AI;
 
 public class AgentScript : MonoBehaviour {
 
-    NavMeshAgent agent;
     public GameObject prefabParticles;
     private  GameObject IntanceParticle;
     private bool isMoving = false;
+    private NavMeshAgent agent;
 
 	// Use this for initialization
 	void Start () {

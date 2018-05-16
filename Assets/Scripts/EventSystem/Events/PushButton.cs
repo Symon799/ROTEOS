@@ -15,7 +15,6 @@ public class PushButton : EventTrigger {
 				 {
 				 	Debug.Log( "Object clicked");
 					GetComponent<Animator>().SetBool("pushed", true);
-					channel = Channel.Alpha;
 					Trigger();
 				 }
              }
