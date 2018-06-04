@@ -8,6 +8,7 @@ public class CubePlacer : MonoBehaviour
 {
     public GameObject bloc;
     public Camera mycam;
+    public Material transparentMaterial;
 
     public int lenght = 40;
 
@@ -39,6 +40,7 @@ public class CubePlacer : MonoBehaviour
         grid = FindObjectOfType<Grid>();
         var finalPosition = grid.GetNearestPointOnGrid(Vector3.zero);
         currentBloc = Instantiate(bloc, finalPosition, Quaternion.identity);
+        currentBloc.GetComponent<Renderer>().material = transparentMaterial;
 
         arr = new GameObject[lenght, lenght, lenght];
 
