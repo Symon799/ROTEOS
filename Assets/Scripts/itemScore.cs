@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class itemScore : MonoBehaviour {
 
+	public GameObject electricParticles;
+
 private GameObject scoreObject;
 	void Start () {
 		scoreObject = GameObject.FindGameObjectWithTag("Score");
@@ -14,7 +16,8 @@ private GameObject scoreObject;
 		if (other.CompareTag("Player"))
 		{
 			scoreObject.SendMessage("AddCrystal", 100);
-			Destroy(gameObject);
+			Instantiate(electricParticles, gameObject.transform.position, electricParticles.transform.rotation);
+			Destroy(gameObject, 0.5f);
 		}
 	}
 }
