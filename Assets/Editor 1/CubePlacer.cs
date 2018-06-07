@@ -70,11 +70,11 @@ public class CubePlacer : MonoBehaviour
 
 
         //Place cube
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButton(0))
             if (Physics.Raycast(ray, out hitInfo))
                 PlaceCubeNear(hitInfo.point);
 
-        if (Input.GetMouseButtonDown(2))
+        if (Input.GetMouseButton(2))
             if (Physics.Raycast(ray, out hitInfo))
                 DeleteCubeNear(hitInfo.point);
 
@@ -87,7 +87,6 @@ public class CubePlacer : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
             WriteJson();
     }
-
 
     private void PlaceCubeNear(Vector3 clickPoint)
     {
