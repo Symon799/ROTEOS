@@ -6,18 +6,20 @@ using System.IO;
 
 public class CubePlacer : MonoBehaviour
 {
-    public GameObject bloc;
     public Camera mycam;
-    public Material transparentMaterial;
-
+    public GameObject[] prefabs;
     public int lenght = 40;
+
 
     private Grid grid;
     private GameObject[,,] arr;
+    private int[,,] idArr;
     private GameObject currentBloc;
+    public Material transparentMaterial;
+    private int currentId = 0;
 
 
-    //JSON
+    //JSON ----------------------------------------------------------JSON
     private ElementCollection eltCollection;
     private string levelName = "/Levels/level.json";
 
@@ -34,21 +36,28 @@ public class CubePlacer : MonoBehaviour
     {
         public List<Element> elements;
     }
+    //JSON ------------------------------
+
+
+    public void setBloc(int id)
+    {
+        currentId = id;
+        Destroy(currentBloc);
+    }
 
     private void Awake()
     {
         grid = FindObjectOfType<Grid>();
-        var finalPosition = grid.GetNearestPointOnGrid(Vector3.zero);
-        currentBloc = Instantiate(bloc, finalPosition, Quaternion.identity);
-        currentBloc.GetComponent<Renderer>().material = transparentMaterial;
-
-        arr = new GameObject[lenght, lenght, lenght];
+        arr = new GameObject[lenght, lenght, lenght]; 
+        idArr = new int[lenght, lenght, lenght];
 
         for (int x = 0; x < lenght; x++)
             for (int y = 0; y < lenght; y ++)
                 for (int z = 0; z < lenght; z++)
-                arr[x, y, z] = null;
-
+                {
+                    idArr[x, y, z] = -1;
+                    arr[x, y, z] = null;
+                }
     }
 
     private void Update()
@@ -70,24 +79,38 @@ public class CubePlacer : MonoBehaviour
 
 
         //Place cube
-        if (Input.GetMouseButton(0))
-            if (Physics.Raycast(ray, out hitInfo))
-                PlaceCubeNear(hitInfo.point);
+        if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out hitInfo))
+        {
+            if (Input.GetMouseButton(0))
+                    PlaceCubeNear(hitInfo.point);
 
-        if (Input.GetMouseButton(2))
-            if (Physics.Raycast(ray, out hitInfo))
-                DeleteCubeNear(hitInfo.point);
+            if (Input.GetMouseButton(2))
+                    DeleteCubeNear(hitInfo.point);
 
-
-        //Show cube
-        if (Physics.Raycast(ray, out hitInfo))
             ShowCubeNear(hitInfo.point);
-
-        //WriteJson
-        if (Input.GetKeyDown(KeyCode.Escape))
-            WriteJson();
+        }
+        if (Input.GetKeyDown("r"))
+        {         
+            rotateBlocY();
+        }
+        if (Input.GetKeyDown("t"))
+        {         
+            rotateBlocX();
+        }
     }
 
+
+    private void rotateBlocY()
+    {
+        Debug.Log("rot");
+        currentBloc.transform.Rotate(0, 90, 0, Space.World);
+    }
+
+    private void rotateBlocX()
+    {
+        Debug.Log("rot");
+        currentBloc.transform.Rotate(90, 0, 0, Space.World);
+    }
     private void PlaceCubeNear(Vector3 clickPoint)
     {
         Vector3 finalPosition = grid.GetNearestPointOnGrid(clickPoint);
@@ -97,8 +120,15 @@ public class CubePlacer : MonoBehaviour
         if (arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z])
             return;
 
-        arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z] = Instantiate(bloc, finalPosition, Quaternion.identity);
+        arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z] = Instantiate(prefabs[currentId], finalPosition, Quaternion.identity);
 
+        //Applying rotation after instantiation
+        arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z].transform.rotation = currentBloc.transform.rotation;
+        
+        //Add id
+        idArr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z] = currentId;
+
+        //Shows grid position
         Debug.Log(finalPosition);
     }
 
@@ -115,10 +145,26 @@ public class CubePlacer : MonoBehaviour
             arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z] = null;
         }
     }
+
     private void ShowCubeNear(Vector3 clickPoint)
     {
         var finalPosition = grid.GetNearestPointOnGrid(clickPoint);
+        if (!currentBloc)
+        {
+            currentBloc = Instantiate(prefabs[currentId], finalPosition, Quaternion.identity);
+            SetLayerRecursively(currentBloc.transform.gameObject, 2);
+        }
         currentBloc.transform.position = finalPosition;
+    }
+
+
+    private void SetLayerRecursively(GameObject obj, int layer) {
+        obj.layer = layer;
+        obj.GetComponentInChildren<Renderer>().material = transparentMaterial;
+ 
+        foreach (Transform child in obj.transform) {
+            SetLayerRecursively(child.gameObject, layer);
+        }
     }
 
     public void WriteJson()
@@ -132,11 +178,10 @@ public class CubePlacer : MonoBehaviour
                     if (arr[x, y, z])
                         {
                             Element newElt = new Element();
-                            newElt.id = 1; //Id of the prefab
+                            newElt.id = idArr[x, y, z];
                             newElt.position = arr[x, y, z].transform.position;
                             newElt.rotation = arr[x, y, z].transform.rotation;
                             eltCollection.elements.Add(newElt);
-                            
                         }
 
         string jsonFile = JsonUtility.ToJson(eltCollection);
@@ -169,7 +214,9 @@ public class CubePlacer : MonoBehaviour
 
         foreach (Element elt in eltCollection.elements)
         {
-            arr[(int)elt.position.x / 2, (int)elt.position.y / 2, (int)elt.position.z / 2] = Instantiate(bloc, elt.position, elt.rotation);
+            int id = (int)elt.id;
+            arr[(int)elt.position.x / 2, (int)elt.position.y / 2, (int)elt.position.z / 2] = Instantiate(prefabs[id], elt.position, elt.rotation);
+            idArr[(int)elt.position.x / 2, (int)elt.position.y / 2, (int)elt.position.z / 2] = id;
         }
     }
 }
