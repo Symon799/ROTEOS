@@ -24,10 +24,12 @@ public class CubePlacer : MonoBehaviour
      //SELECTION ----------------------------------------------------------SELECTION
     
     public GameObject addButton;
+    public GameObject removeBtn;
     private bool selectionMode = false;
     private Vector3 pA = Vector3.zero;
     private Vector3 pB = Vector3.zero;
     private GameObject groups;
+    private Transform groupSelected;
 
 
     //JSON ----------------------------------------------------------JSON
@@ -49,11 +51,36 @@ public class CubePlacer : MonoBehaviour
     }
     //------------------------------------------------------------------
 
+    private void Awake()
+    {
+        grid = FindObjectOfType<Grid>();
+        arr = new GameObject[lenght, lenght, lenght]; 
+        idArr = new int[lenght, lenght, lenght];
+
+        for (int x = 0; x < lenght; x++)
+            for (int y = 0; y < lenght; y ++)
+                for (int z = 0; z < lenght; z++)
+                {
+                    idArr[x, y, z] = -1;
+                    arr[x, y, z] = null;
+                }
+
+        //INSTANCE CURRENTSELECTION
+        groups = new GameObject();
+        groups.name = "Groups";
+        //selectionMode = true;
+         removeBtn.SetActive(groupSelected);
+    }
 
     public void setBloc(int id)
     {
         currentId = id;
         Destroy(currentBloc);
+    }
+
+    public void removeGroup()
+    {
+        Destroy(groupSelected.gameObject);
     }
     
     public void switchSelectionMode()
@@ -97,37 +124,18 @@ public class CubePlacer : MonoBehaviour
                 for (int y = iy; y <= fy; y++)
                 {
                     if (arr[x, y, z])
-                        arr[x, y, z].transform.parent = groups.transform;
+                        arr[x, y, z].transform.parent = current.transform;
                     Debug.Log("x: " + x + "  y: " + y + " z: " + z);
                 }
             }
         }
         Destroy(currentSelection);
-    }
-
-    private void Awake()
-    {
-        grid = FindObjectOfType<Grid>();
-        arr = new GameObject[lenght, lenght, lenght]; 
-        idArr = new int[lenght, lenght, lenght];
-
-        for (int x = 0; x < lenght; x++)
-            for (int y = 0; y < lenght; y ++)
-                for (int z = 0; z < lenght; z++)
-                {
-                    idArr[x, y, z] = -1;
-                    arr[x, y, z] = null;
-                }
-
-        //INSTANCE CURRENTSELECTION
-        groups = new GameObject();
-        groups.name = "Groups";
-        //selectionMode = true;
+        groupSelected = current.transform;
+        removeBtn.SetActive(true);
     }
 
     private void Update()
     {
-        RaycastHit hitInfo;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (!selectionMode)
         {
@@ -143,15 +151,15 @@ public class CubePlacer : MonoBehaviour
                 transform.position = new Vector3(transform.position.x, transform.position.y - 2, transform.position.z);
             }
 
-
+            RaycastHit hitInfo;
             //Place cube
             if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out hitInfo))
             {
                 if (Input.GetMouseButton(0))
-                        PlaceCubeNear(hitInfo.point);
+                    PlaceCubeNear(hitInfo.point);
 
                 if (Input.GetMouseButton(2))
-                        DeleteCubeNear(hitInfo.point);
+                    DeleteCubeNear(hitInfo.point);
 
                 ShowCubeNear(hitInfo.point);
             }
@@ -162,17 +170,56 @@ public class CubePlacer : MonoBehaviour
         }
         else
         {
-            if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out hitInfo))
+            selection(ray);
+        }
+    }
+
+    private void selection(Ray ray)
+    {
+        RaycastHit hitInfo;
+        if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out hitInfo))
             {
                 if (Input.GetMouseButtonDown(0))
                 {
                     pA = grid.GetNearestPointOnGrid(hitInfo.point) / 2;
-                    if (!currentSelection)
-                        currentSelection = Instantiate(selectionBloc, pA, Quaternion.identity);
-                    currentSelection.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
-                    currentSelection.transform.position = pA * 2;
+                    //check if it is a group
+                    bool selectGroupBool = false;
+                    if (groups)
+                    {
+                    Transform[] groupsChildren = new Transform[groups.transform.childCount];
+                    for (int i = 0; i < groups.transform.childCount; i++) {
+                        groupsChildren[i] = groups.transform.GetChild(i);
+                    }
+                    foreach (Transform group in groupsChildren)
+                    {
+                        Transform[] groupChildren = new Transform[group.transform.childCount];
+                        for (int i = 0; i < group.transform.childCount; i++)
+                        {
+                            if (group.transform.GetChild(i).transform.position == pA * 2)
+                            {
+                                selectGroupBool = true;
+                                groupSelected = group;
+                                Destroy(currentSelection);
+                                Debug.Log(group.transform.GetChild(i).name);
+                            }
+                        }
+
+                    }
+                    }
+                    removeBtn.SetActive(groupSelected);
+
+                    if (!selectGroupBool)
+                        groupSelected = null;
+
+                    if (!groupSelected)
+                    {
+                        if (!currentSelection)
+                            currentSelection = Instantiate(selectionBloc, pA, Quaternion.identity);
+                        currentSelection.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
+                        currentSelection.transform.position = pA * 2;
+                    }
                 }
-                else if (Input.GetMouseButton(0))
+                else if (Input.GetMouseButton(0) && !groupSelected)
                 {
                     Vector3 oneVector = new Vector3(1,0,1);
                     pB = grid.GetNearestPointOnGrid(hitInfo.point) / 2;
@@ -193,7 +240,6 @@ public class CubePlacer : MonoBehaviour
                     currentSelection.transform.position = new Vector3(pa2.x * 2 + ((pb2.x - pa2.x)) - 1, pa2.y * 2, pa2.z * 2 + (pb2.z - pa2.z) - 1);
                 }
             }
-        }
     }
 
 
