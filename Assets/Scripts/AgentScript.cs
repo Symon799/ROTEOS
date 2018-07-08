@@ -6,6 +6,8 @@ using UnityEngine.AI;
 public class AgentScript : MonoBehaviour {
 
     public GameObject prefabParticles;
+    public GameObject waterParticles;
+
     private  GameObject IntanceParticle;
     private bool isMoving = false;
     private NavMeshAgent agent;
@@ -29,7 +31,12 @@ public class AgentScript : MonoBehaviour {
         if (Input.GetButtonDown("Fire1"))
             if (Physics.Raycast(ray, out hit, 100))
             {
-                if (!hit.collider.CompareTag("NonWalkable") && !hit.collider.CompareTag("Interact"))
+                if (hit.collider.CompareTag("Water"))
+                {
+                    Vector3 partPos = new Vector3(hit.point.x, hit.point.y, hit.point.z);
+                    Instantiate(waterParticles, partPos, waterParticles.transform.rotation);
+                }
+                else if (!hit.collider.CompareTag("NonWalkable") && !hit.collider.CompareTag("Interact"))
                 {
                     if (IntanceParticle)
                         Destroy(IntanceParticle);

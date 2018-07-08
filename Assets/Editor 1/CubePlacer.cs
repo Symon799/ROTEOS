@@ -6,17 +6,31 @@ using System.IO;
 
 public class CubePlacer : MonoBehaviour
 {
-    public GameObject bloc;
+    //Public
     public Camera mycam;
-
+    public GameObject[] prefabs;
+    public GameObject selectionBloc;
     public int lenght = 40;
 
+    //private
     private Grid grid;
     private GameObject[,,] arr;
+    private int[,,] idArr;
     private GameObject currentBloc;
+    private GameObject currentSelection;
+    public Material transparentMaterial;
+    private int currentId = 0;
+
+     //SELECTION ----------------------------------------------------------SELECTION
+    
+    public GameObject addButton;
+    private bool selectionMode = false;
+    private Vector3 pA = Vector3.zero;
+    private Vector3 pB = Vector3.zero;
+    private GameObject groups;
 
 
-    //JSON
+    //JSON ----------------------------------------------------------JSON
     private ElementCollection eltCollection;
     private string levelName = "/Levels/level.json";
 
@@ -33,60 +47,165 @@ public class CubePlacer : MonoBehaviour
     {
         public List<Element> elements;
     }
+    //------------------------------------------------------------------
+
+
+    public void setBloc(int id)
+    {
+        currentId = id;
+        Destroy(currentBloc);
+    }
+    
+    public void switchSelectionMode()
+    {
+        selectionMode = !selectionMode;
+        addButton.SetActive(selectionMode);
+        if (selectionMode)
+            Destroy(currentBloc);
+        else
+            Destroy(currentSelection);
+
+        MeshRenderer[] meshRenderers = groups.GetComponentsInChildren<MeshRenderer>();
+        foreach (MeshRenderer mesh in meshRenderers)
+            mesh.enabled = selectionMode;
+    }
+
+    public void addGroup()
+    {
+        GameObject current = Instantiate(currentSelection);
+        current.transform.parent = groups.transform;
+
+        Vector3 pa2 = pA;
+        Vector3 pb2 = pB;
+
+        int ix = (int)(pa2.x < pb2.x ? pa2.x : pb2.x);
+        int iz = (int)(pa2.z < pb2.z ? pa2.z : pb2.z);
+        int iy = (int)(pa2.y < pb2.z ? pa2.y : pb2.y);
+        
+        int fx = (int)(pa2.x >= pb2.x ? pa2.x : pb2.x);
+        int fz = (int)(pa2.z >= pb2.z ? pa2.z : pb2.z);
+        int fy = (int)(pa2.y >= pb2.z ? pa2.y : pb2.y);
+
+        Debug.Log("x: " + ix + "  y: " + iy + " z: " + iz);
+        Debug.Log("fx: " + fx + "  fy: " + fy + " fz: " + fz);
+        Debug.Log("ELEMENTS");
+
+        for (int x = ix; x <= fx; x++)
+        {
+            for (int z = iz; z <= fz; z++)
+            {
+                for (int y = iy; y <= fy; y++)
+                {
+                    if (arr[x, y, z])
+                        arr[x, y, z].transform.parent = groups.transform;
+                    Debug.Log("x: " + x + "  y: " + y + " z: " + z);
+                }
+            }
+        }
+        Destroy(currentSelection);
+    }
 
     private void Awake()
     {
         grid = FindObjectOfType<Grid>();
-        var finalPosition = grid.GetNearestPointOnGrid(Vector3.zero);
-        currentBloc = Instantiate(bloc, finalPosition, Quaternion.identity);
-
-        arr = new GameObject[lenght, lenght, lenght];
+        arr = new GameObject[lenght, lenght, lenght]; 
+        idArr = new int[lenght, lenght, lenght];
 
         for (int x = 0; x < lenght; x++)
             for (int y = 0; y < lenght; y ++)
                 for (int z = 0; z < lenght; z++)
-                arr[x, y, z] = null;
+                {
+                    idArr[x, y, z] = -1;
+                    arr[x, y, z] = null;
+                }
 
+        //INSTANCE CURRENTSELECTION
+        groups = new GameObject();
+        groups.name = "Groups";
+        //selectionMode = true;
     }
 
     private void Update()
     {
         RaycastHit hitInfo;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        
-        //Scroll position
-        if (Input.GetAxis("Mouse ScrollWheel") > 0f)
+        if (!selectionMode)
         {
-            Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y + 2, Camera.main.transform.position.z);
-            transform.position = new Vector3(transform.position.x, transform.position.y + 2, transform.position.z);
+            //Scroll position
+            if (Input.GetAxis("Mouse ScrollWheel") > 0f)
+            {
+                Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y + 2, Camera.main.transform.position.z);
+                transform.position = new Vector3(transform.position.x, transform.position.y + 2, transform.position.z);
+            }
+            else if (Input.GetAxis("Mouse ScrollWheel") < 0f)
+            {
+                Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y - 2, Camera.main.transform.position.z);
+                transform.position = new Vector3(transform.position.x, transform.position.y - 2, transform.position.z);
+            }
+
+
+            //Place cube
+            if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out hitInfo))
+            {
+                if (Input.GetMouseButton(0))
+                        PlaceCubeNear(hitInfo.point);
+
+                if (Input.GetMouseButton(2))
+                        DeleteCubeNear(hitInfo.point);
+
+                ShowCubeNear(hitInfo.point);
+            }
+            if (Input.GetKeyDown("r"))
+                rotateBlocY();
+            if (Input.GetKeyDown("t"))
+                rotateBlocX();
         }
-        else if (Input.GetAxis("Mouse ScrollWheel") < 0f)
+        else
         {
-            Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y - 2, Camera.main.transform.position.z);
-            transform.position = new Vector3(transform.position.x, transform.position.y - 2, transform.position.z);
+            if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out hitInfo))
+            {
+                if (Input.GetMouseButtonDown(0))
+                {
+                    pA = grid.GetNearestPointOnGrid(hitInfo.point) / 2;
+                    if (!currentSelection)
+                        currentSelection = Instantiate(selectionBloc, pA, Quaternion.identity);
+                    currentSelection.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
+                    currentSelection.transform.position = pA * 2;
+                }
+                else if (Input.GetMouseButton(0))
+                {
+                    Vector3 oneVector = new Vector3(1,0,1);
+                    pB = grid.GetNearestPointOnGrid(hitInfo.point) / 2;
+
+                    Vector3 pa2 = pA;
+                    Vector3 pb2 = pB;
+
+                    pb2.x = pb2.x >= pa2.x ? pb2.x + 1: pb2.x;
+                    pb2.z = pb2.z >= pa2.z ? pb2.z + 1: pb2.z;
+
+                    pa2.x = pa2.x >= pb2.x ? pa2.x + 1: pa2.x;
+                    pa2.z = pa2.z >= pb2.z ? pa2.z + 1: pa2.z;
+
+                    Vector3 difference = (pb2 - pa2);
+                    difference.y = 1;
+                    difference += new Vector3(0.1f, 0.1f, 0.1f);
+                    currentSelection.transform.localScale = difference;
+                    currentSelection.transform.position = new Vector3(pa2.x * 2 + ((pb2.x - pa2.x)) - 1, pa2.y * 2, pa2.z * 2 + (pb2.z - pa2.z) - 1);
+                }
+            }
         }
-
-
-        //Place cube
-        if (Input.GetMouseButtonDown(0))
-            if (Physics.Raycast(ray, out hitInfo))
-                PlaceCubeNear(hitInfo.point);
-
-        if (Input.GetMouseButtonDown(2))
-            if (Physics.Raycast(ray, out hitInfo))
-                DeleteCubeNear(hitInfo.point);
-
-
-        //Show cube
-        if (Physics.Raycast(ray, out hitInfo))
-            ShowCubeNear(hitInfo.point);
-
-        //WriteJson
-        if (Input.GetKeyDown(KeyCode.Escape))
-            WriteJson();
     }
 
 
+    private void rotateBlocY()
+    {
+        currentBloc.transform.Rotate(0, 90, 0, Space.World);
+    }
+
+    private void rotateBlocX()
+    {
+        currentBloc.transform.Rotate(90, 0, 0, Space.World);
+    }
     private void PlaceCubeNear(Vector3 clickPoint)
     {
         Vector3 finalPosition = grid.GetNearestPointOnGrid(clickPoint);
@@ -96,8 +215,15 @@ public class CubePlacer : MonoBehaviour
         if (arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z])
             return;
 
-        arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z] = Instantiate(bloc, finalPosition, Quaternion.identity);
+        arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z] = Instantiate(prefabs[currentId], finalPosition, Quaternion.identity);
 
+        //Applying rotation after instantiation
+        arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z].transform.rotation = currentBloc.transform.rotation;
+        
+        //Add id
+        idArr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z] = currentId;
+
+        //Shows grid position
         Debug.Log(finalPosition);
     }
 
@@ -114,10 +240,26 @@ public class CubePlacer : MonoBehaviour
             arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z] = null;
         }
     }
+
     private void ShowCubeNear(Vector3 clickPoint)
     {
         var finalPosition = grid.GetNearestPointOnGrid(clickPoint);
+        if (!currentBloc)
+        {
+            currentBloc = Instantiate(prefabs[currentId], finalPosition, Quaternion.identity);
+            SetLayerRecursively(currentBloc.transform.gameObject, 2);
+        }
         currentBloc.transform.position = finalPosition;
+    }
+
+
+    private void SetLayerRecursively(GameObject obj, int layer) {
+        obj.layer = layer;
+        obj.GetComponentInChildren<Renderer>().material = transparentMaterial;
+ 
+        foreach (Transform child in obj.transform) {
+            SetLayerRecursively(child.gameObject, layer);
+        }
     }
 
     public void WriteJson()
@@ -131,11 +273,10 @@ public class CubePlacer : MonoBehaviour
                     if (arr[x, y, z])
                         {
                             Element newElt = new Element();
-                            newElt.id = 1; //Id of the prefab
+                            newElt.id = idArr[x, y, z];
                             newElt.position = arr[x, y, z].transform.position;
                             newElt.rotation = arr[x, y, z].transform.rotation;
                             eltCollection.elements.Add(newElt);
-                            
                         }
 
         string jsonFile = JsonUtility.ToJson(eltCollection);
@@ -168,7 +309,9 @@ public class CubePlacer : MonoBehaviour
 
         foreach (Element elt in eltCollection.elements)
         {
-            arr[(int)elt.position.x / 2, (int)elt.position.y / 2, (int)elt.position.z / 2] = Instantiate(bloc, elt.position, elt.rotation);
+            int id = (int)elt.id;
+            arr[(int)elt.position.x / 2, (int)elt.position.y / 2, (int)elt.position.z / 2] = Instantiate(prefabs[id], elt.position, elt.rotation);
+            idArr[(int)elt.position.x / 2, (int)elt.position.y / 2, (int)elt.position.z / 2] = id;
         }
     }
 }

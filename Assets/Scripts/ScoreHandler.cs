@@ -5,7 +5,7 @@ using TMPro;
 
 public class ScoreHandler : MonoBehaviour {
 
-	int score = 0;
+	private int score = 0;
 	private TextMeshProUGUI textmeshPro;
 	void Start () {
 		textmeshPro = GetComponent<TextMeshProUGUI>();
@@ -16,5 +16,10 @@ public class ScoreHandler : MonoBehaviour {
 	{
 		score += amount;
 		textmeshPro.SetText(score.ToString());
+	}
+
+	public int GetCrystals()
+	{
+		return score;
 	}
 }
