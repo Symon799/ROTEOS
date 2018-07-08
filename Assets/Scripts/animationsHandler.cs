@@ -11,16 +11,16 @@ public class animationsHandler : MonoBehaviour {
 	void Start () {
 		animator = GetComponent<Animator>();
 		animator.SetBool("walking", true);
-		agent = GetComponent<NavMeshAgent>();
+		//agent = GetComponent<NavMeshAgent>();
 	}
 	
 	// Update is called once per frame
 	void Update ()
 	{
-		if (agent.velocity.magnitude == 0)
+		/*if (agent.velocity.magnitude == 0)
 			animator.SetBool("walking", false);
 		else
-			animator.SetBool("walking", true);
+			animator.SetBool("walking", true);*/
 		
 	}
 }

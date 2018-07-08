@@ -27,9 +27,9 @@ public class Rotate : EventClient
             {
                 _isRotating = false;
                 if (_isInitial)
-					this.transform.rotation = Quaternion.Euler(RotateTo);
-				else
-					this.transform.rotation = Quaternion.Euler(_baseRotation);
+                    this.transform.rotation = Quaternion.Euler(RotateTo);
+                else
+                    this.transform.rotation = Quaternion.Euler(_baseRotation);
             }
             else
             {
@@ -73,5 +73,14 @@ public class Rotate : EventClient
         {
             return this.transform.rotation == Quaternion.Euler(_baseRotation);
         }
+    }
+
+    public static Rotate CreateComponent(GameObject where, Channel channel, Vector3 RotateTo, float Speed)
+    {
+        Rotate component = where.AddComponent<Rotate>();
+        component.channel = channel;
+        component.RotateTo = RotateTo;
+        component.Speed = Speed;
+        return component;
     }
 }
