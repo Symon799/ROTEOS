@@ -24,4 +24,8 @@ public class Spawner : MonoBehaviour
     {
         return null;
     }
+
+    public class Factory : Factory<Spawner>
+    {
+    }
 }

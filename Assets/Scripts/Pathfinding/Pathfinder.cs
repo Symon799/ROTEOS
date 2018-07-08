@@ -148,11 +148,15 @@ public class Pathfinder : IPathfinder
         List<Node> neighbours = new List<Node>();
         foreach (var node in Grid)
         {
-            if (Vector3.Distance(current.worldPosition, node.worldPosition) <= distance)
+            if (Vector3.Distance(current.worldPosition, node.worldPosition) <= Math.Max(node.maxDistanceBetweenNode, current.maxDistanceBetweenNode) 
+                && node.walkable 
+                && node.cube != current.cube
+                && current.getFacing() == node.getFacing())
             {
                 neighbours.Add(node);
             }
         }
+
         return neighbours;
     }
 

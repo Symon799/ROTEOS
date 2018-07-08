@@ -11,14 +11,32 @@ public class PathRequestManager : MonoBehaviour
     private IPathfinder _pathfinder;
 
     #region TESTING
-    public GameObject nodeFrom;
-    public GameObject nodeTo;
+    public Vector3 from;
+    public Vector3 to;
     private List<Node> lastWaypoints = null;
+
+    private Gravity characterGround;
+    private Movement characterMovement;
+
+    void Start()
+    {
+        characterGround = GameObject.FindGameObjectWithTag("Player").GetComponent<Gravity>();
+        characterMovement = GameObject.FindGameObjectWithTag("Player").GetComponent<Movement>();
+    }
+
+    void Update()
+    {
+    }
+
+    void Awake()
+    {
+        instance = this;
+    }
 
     public void testPathfinding()
     {
         Debug.Log("testPathfinding");
-        RequestPath(nodeFrom.transform.position, nodeTo.transform.position, testAction);
+        RequestPath(characterGround.GetBotPosition(), to, testAction);
     }
 
     void testAction(Node[] nodes, bool success)
@@ -35,6 +53,11 @@ public class PathRequestManager : MonoBehaviour
                 lastWaypoints.Add(node);
             }
         }
+        else
+        {
+            if (lastWaypoints != null)
+                lastWaypoints.Clear();
+        }
     }
     #endregion
 
@@ -45,16 +68,6 @@ public class PathRequestManager : MonoBehaviour
     #endregion
 
     public static PathRequestManager instance;
-
-    void Awake()
-    {
-        instance = this;
-    }
-
-    void Update()
-    {
-        TryProcessNext();
-    }
 
     struct PathRequest
     {
@@ -94,13 +107,22 @@ public class PathRequestManager : MonoBehaviour
         TryProcessNext();
     }
 
+    public bool Pathfinder()
+    {
+        return _pathfinder != null;
+    }
+
     void OnDrawGizmos()
     {
         if (_pathfinder != null)
         {
-            Gizmos.color = Color.white;
+
             foreach (var node in _pathfinder.GetGrid())
             {
+                if (node.walkable)
+                    Gizmos.color = Color.white;
+                else
+                    Gizmos.color = Color.black;
                 Gizmos.DrawSphere(node.worldPosition, 0.2f);
                 foreach (var nodeNeigbor in _pathfinder.GetNeighbors(node, 2.1f))
                 {

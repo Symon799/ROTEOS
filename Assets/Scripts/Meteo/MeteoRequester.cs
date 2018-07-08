@@ -12,7 +12,7 @@ public class MeteoRequester : MonoBehaviour
     [Inject]
     private IWebRequester _webRequester;
     [Inject]
-    private IMeteoStatus _meteoStatus;
+    public IMeteoStatus meteoStatus;
     [Inject]
     private ILocationFinder _locationFinder;
     [Inject]
@@ -50,25 +50,25 @@ public class MeteoRequester : MonoBehaviour
 
         yield return new WaitUntil(() => resultRequest.isDone);
 
-        _meteoStatus.Init(resultRequest.downloadHandler.text);
+        meteoStatus.Init(resultRequest.downloadHandler.text);
         
         Debug.Log(resultRequest.downloadHandler.text);
-        //text.text = _meteoStatus.ToString();
+        //text.text = meteoStatus.ToString();
         
-        string meteoString = _meteoStatus.ToString();
-        if (_meteoStatus.getWeatherType() == WeatherType.NO)
+        string meteoString = meteoStatus.ToString();
+        if (meteoStatus.getWeatherType() == WeatherType.NO)
         {
             meteoVisual.transform.GetChild(0).gameObject.SetActive(true);
             meteoVisual.transform.GetChild(1).gameObject.SetActive(false);
             meteoVisual.transform.GetChild(2).gameObject.SetActive(false);
         }
-        else if (_meteoStatus.getWeatherType() == WeatherType.RAIN)
+        else if (meteoStatus.getWeatherType() == WeatherType.RAIN)
         {
             meteoVisual.transform.GetChild(0).gameObject.SetActive(false);
             meteoVisual.transform.GetChild(1).gameObject.SetActive(true);
             meteoVisual.transform.GetChild(2).gameObject.SetActive(false);
         }
-        else if (_meteoStatus.getWeatherType() == WeatherType.SNOW)
+        else if (meteoStatus.getWeatherType() == WeatherType.SNOW)
         {
             meteoVisual.transform.GetChild(0).gameObject.SetActive(false);
             meteoVisual.transform.GetChild(1).gameObject.SetActive(false);
