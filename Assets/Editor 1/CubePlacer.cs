@@ -69,7 +69,8 @@ public class CubePlacer : MonoBehaviour
         groups = new GameObject();
         groups.name = "Groups";
         //selectionMode = true;
-         removeBtn.SetActive(groupSelected);
+        removeBtn.SetActive(groupSelected);
+        addButton.SetActive(false);
     }
 
     public void setBloc(int id)
@@ -81,20 +82,46 @@ public class CubePlacer : MonoBehaviour
     public void removeGroup()
     {
         Destroy(groupSelected.gameObject);
+        removeBtn.SetActive(false);
+
     }
     
     public void switchSelectionMode()
     {
         selectionMode = !selectionMode;
         addButton.SetActive(selectionMode);
+
+        groupSelected = null;
+        removeBtn.SetActive(false);
+        addButton.SetActive(false);
+
         if (selectionMode)
             Destroy(currentBloc);
         else
             Destroy(currentSelection);
+            
 
-        MeshRenderer[] meshRenderers = groups.GetComponentsInChildren<MeshRenderer>();
-        foreach (MeshRenderer mesh in meshRenderers)
-            mesh.enabled = selectionMode;
+        updateMeshRenderer();
+    }
+
+    private void updateMeshRenderer()
+    {
+        Transform[] groupsChildren = new Transform[groups.transform.childCount];
+        for (int i = 0; i < groups.transform.childCount; i++) {
+            groupsChildren[i] = groups.transform.GetChild(i);
+        }
+        foreach (Transform group in groupsChildren)
+        {
+            Transform[] groupChildren = new Transform[group.transform.childCount];
+            for (int i = 0; i < group.transform.childCount; i++)
+            {
+                if (group.transform.GetChild(i).name == "SelectionCube")
+                {
+                    group.transform.GetChild(i).GetComponent<MeshRenderer>().enabled = selectionMode;
+                }
+            }
+
+        }
     }
 
     public void addGroup()
@@ -132,6 +159,7 @@ public class CubePlacer : MonoBehaviour
         Destroy(currentSelection);
         groupSelected = current.transform;
         removeBtn.SetActive(true);
+        addButton.SetActive(false);
     }
 
     private void Update()
@@ -139,18 +167,6 @@ public class CubePlacer : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (!selectionMode)
         {
-            //Scroll position
-            if (Input.GetAxis("Mouse ScrollWheel") > 0f)
-            {
-                Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y + 2, Camera.main.transform.position.z);
-                transform.position = new Vector3(transform.position.x, transform.position.y + 2, transform.position.z);
-            }
-            else if (Input.GetAxis("Mouse ScrollWheel") < 0f)
-            {
-                Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y - 2, Camera.main.transform.position.z);
-                transform.position = new Vector3(transform.position.x, transform.position.y - 2, transform.position.z);
-            }
-
             RaycastHit hitInfo;
             //Place cube
             if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out hitInfo))
@@ -172,6 +188,22 @@ public class CubePlacer : MonoBehaviour
         {
             selection(ray);
         }
+        scrollMove();
+    }
+
+    private void scrollMove()
+    {
+        //Scroll position
+        if (Input.GetAxis("Mouse ScrollWheel") > 0f)
+        {
+            Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y + 2, Camera.main.transform.position.z);
+            transform.position = new Vector3(transform.position.x, transform.position.y + 2, transform.position.z);
+        }
+        else if (Input.GetAxis("Mouse ScrollWheel") < 0f)
+        {
+            Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y - 2, Camera.main.transform.position.z);
+            transform.position = new Vector3(transform.position.x, transform.position.y - 2, transform.position.z);
+        }
     }
 
     private void selection(Ray ray)
@@ -186,30 +218,32 @@ public class CubePlacer : MonoBehaviour
                     bool selectGroupBool = false;
                     if (groups)
                     {
-                    Transform[] groupsChildren = new Transform[groups.transform.childCount];
-                    for (int i = 0; i < groups.transform.childCount; i++) {
-                        groupsChildren[i] = groups.transform.GetChild(i);
-                    }
-                    foreach (Transform group in groupsChildren)
-                    {
-                        Transform[] groupChildren = new Transform[group.transform.childCount];
-                        for (int i = 0; i < group.transform.childCount; i++)
-                        {
-                            if (group.transform.GetChild(i).transform.position == pA * 2)
-                            {
-                                selectGroupBool = true;
-                                groupSelected = group;
-                                Destroy(currentSelection);
-                                Debug.Log(group.transform.GetChild(i).name);
-                            }
+                        Transform[] groupsChildren = new Transform[groups.transform.childCount];
+                        for (int i = 0; i < groups.transform.childCount; i++) {
+                            groupsChildren[i] = groups.transform.GetChild(i);
                         }
+                        foreach (Transform group in groupsChildren)
+                        {
+                            Transform[] groupChildren = new Transform[group.transform.childCount];
+                            for (int i = 0; i < group.transform.childCount; i++)
+                            {
+                                if (group.transform.GetChild(i).transform.position == pA * 2)
+                                {
+                                    selectGroupBool = true;
+                                    groupSelected = group;
+                                    Destroy(currentSelection);
+                                    Debug.Log(group.transform.GetChild(i).name);
+                                }
+                            }
 
+                        }
                     }
-                    }
-                    removeBtn.SetActive(groupSelected);
 
                     if (!selectGroupBool)
                         groupSelected = null;
+                    else
+                        Destroy(currentSelection);
+                    removeBtn.SetActive(groupSelected);
 
                     if (!groupSelected)
                     {
@@ -218,6 +252,7 @@ public class CubePlacer : MonoBehaviour
                         currentSelection.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
                         currentSelection.transform.position = pA * 2;
                     }
+                    addButton.SetActive(!groupSelected && currentSelection);
                 }
                 else if (Input.GetMouseButton(0) && !groupSelected)
                 {
@@ -229,15 +264,16 @@ public class CubePlacer : MonoBehaviour
 
                     pb2.x = pb2.x >= pa2.x ? pb2.x + 1: pb2.x;
                     pb2.z = pb2.z >= pa2.z ? pb2.z + 1: pb2.z;
+                    pb2.y = pb2.y >= pa2.y ? pb2.y + 1: pb2.y;
 
                     pa2.x = pa2.x >= pb2.x ? pa2.x + 1: pa2.x;
                     pa2.z = pa2.z >= pb2.z ? pa2.z + 1: pa2.z;
+                    pa2.y = pa2.y >= pb2.y ? pa2.y + 1: pa2.y;
 
                     Vector3 difference = (pb2 - pa2);
-                    difference.y = 1;
-                    difference += new Vector3(0.1f, 0.1f, 0.1f);
+                    difference += new Vector3(difference.x >= 0 ? 0.1f : -0.1f, difference.y >= 0 ? 0.1f : -0.1f, difference.z >= 0 ? 0.1f : -0.1f);
                     currentSelection.transform.localScale = difference;
-                    currentSelection.transform.position = new Vector3(pa2.x * 2 + ((pb2.x - pa2.x)) - 1, pa2.y * 2, pa2.z * 2 + (pb2.z - pa2.z) - 1);
+                    currentSelection.transform.position = new Vector3(pa2.x * 2 + ((pb2.x - pa2.x)) - 1, pa2.y * 2 + ((pb2.y - pa2.y)) - 1, pa2.z * 2 + (pb2.z - pa2.z) - 1);
                 }
             }
     }
