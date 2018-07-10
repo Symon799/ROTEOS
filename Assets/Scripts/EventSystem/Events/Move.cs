@@ -8,7 +8,6 @@ public class Move : EventClient {
 	private bool _isMoving = false;
 	private Vector3 _basePosition;
 	public Vector3 MoveToPosition;
-	public GameObject navmeshObject;
 	public float Speed = 1;
 
 	void Awake() {
@@ -20,7 +19,6 @@ public class Move : EventClient {
 		if (_isMoving) {
 			if (isArrived())
 			{
-				navmeshObject.GetComponent<NavMeshSurface>().BuildNavMesh();
 				_isMoving = false;
 			}
 			else

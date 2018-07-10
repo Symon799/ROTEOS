@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.IO;
+using UnityEngine.UI;
+using System.Linq;
 
 public class CubePlacer : MonoBehaviour
 {
@@ -24,12 +26,24 @@ public class CubePlacer : MonoBehaviour
     
     public GameObject addButton;
     public GameObject popUpGroup;
+    private Dropdown dropScript, dropChannel;
+    private InputField fieldSpeed, fieldX, fieldY, fieldZ;
     private bool selectionMode = false;
-    private Vector3 pA = Vector3.zero;
-    private Vector3 pB = Vector3.zero;
-    private GameObject groups;
+    private Vector3 pA = Vector3.zero, pB = Vector3.zero;
+    private GameObject groupsObj;
     private Transform groupSelected;
+    private Transform ScriptDetails;
 
+    public class GroupElement
+    {
+        public GameObject gameObject;
+        public int id;
+        public Vector3 pos;
+        public float speed;
+        public int channel;
+    }
+
+    private List<GroupElement> groups;
 
     //JSON ----------------------------------------------------------JSON
     private ElementCollection eltCollection;
@@ -47,6 +61,23 @@ public class CubePlacer : MonoBehaviour
     public class ElementCollection
     {
         public List<Element> elements;
+        public List<Group> groups;
+    }
+
+    [System.Serializable]
+    public class Group
+    {
+        public List<Vector3> elements;
+        public ComponentJson component;
+    }
+
+    [System.Serializable]
+    public class ComponentJson
+    {
+        public int id;
+        public Vector3 position;
+        public float speed;
+        public String channel;
     }
     //------------------------------------------------------------------
 
@@ -55,6 +86,9 @@ public class CubePlacer : MonoBehaviour
         grid = FindObjectOfType<Grid>();
         arr = new GameObject[lenght, lenght, lenght]; 
         idArr = new int[lenght, lenght, lenght];
+        groupsObj = new GameObject();
+        groups = new List<GroupElement>();
+        groupsObj.name = "Groups";
 
         for (int x = 0; x < lenght; x++)
             for (int y = 0; y < lenght; y ++)
@@ -63,26 +97,137 @@ public class CubePlacer : MonoBehaviour
                     idArr[x, y, z] = -1;
                     arr[x, y, z] = null;
                 }
+                
+        initUi();
+    }
 
-        //INSTANCE CURRENTSELECTION
-        groups = new GameObject();
-        groups.name = "Groups";
-        //selectionMode = true;
+    private void initUi()
+    {
+        Dropdown[] dList = popUpGroup.GetComponentsInChildren<Dropdown>();
+        foreach (Dropdown d in dList)
+        {
+            if (d.gameObject.name == "ScriptSelect")
+                dropScript = d;
+            else if (d.gameObject.name == "Channel")
+                dropChannel = d;
+        }
+        InputField[] fieldList = popUpGroup.GetComponentsInChildren<InputField>();
+        foreach (InputField i in fieldList)
+        {
+            if (i.gameObject.name == "Speed")
+                fieldSpeed = i;
+            else if (i.gameObject.name == "X")
+                fieldX = i;
+            else if (i.gameObject.name == "Y")
+                fieldY = i;
+            else if (i.gameObject.name == "Z")
+                fieldZ = i;
+        }
+
         popUpGroup.SetActive(groupSelected);
         addButton.SetActive(false);
+        ScriptDetails = popUpGroup.transform.Find("ScriptDetails");
     }
 
     public void setBloc(int id)
     {
+        if (selectionMode)
+            switchSelectionMode();
         currentId = id;
         Destroy(currentBloc);
     }
 
-    public void removeGroup()
+    public void DeleteGroup()
     {
-        Destroy(groupSelected.gameObject);
+        removeFromGroup(groupSelected.gameObject);
         popUpGroup.SetActive(false);
+    }
 
+    private GroupElement getComponentInGroups(GameObject go)
+    {
+        foreach (GroupElement ge in groups)
+            if (go.transform.position == ge.gameObject.transform.position)
+                return ge;
+        return null;
+    }
+
+    private void setComponentInGroups(Transform go, int id, Vector3 pos, float speed, int channel)
+    {
+        foreach (GroupElement ge in groups)
+        {
+            if (go.position == ge.gameObject.transform.position)
+            {
+                Debug.Log("ONE" + go.position);
+                ge.id = id;
+                ge.pos = pos;
+                ge.speed = speed;
+                ge.channel = channel;
+                break;
+            }
+        }
+    }
+
+    public void SetComponent()
+    {
+        setComponentInGroups(groupSelected,
+                             dropScript.value,
+                             new Vector3(float.Parse(fieldX.text), float.Parse(fieldY.text), float.Parse(fieldZ.text)),
+                             float.Parse(fieldSpeed.text), dropChannel.value);
+
+        //Will be useful later
+        /*
+        if (dropdown.value == 0)
+        {
+            var components = groupSelected.GetComponents(typeof(Move)).Concat(groupSelected.GetComponents(typeof(Rotate)));
+            foreach (Component c in components)
+                Destroy(c);
+        }
+        else if (dropdown.value == 1)
+        {
+            var components = groupSelected.GetComponents(typeof(Rotate));
+            foreach (Component c in components)
+                Destroy(c);
+
+            groupSelected.gameObject.AddComponent(typeof(Move));
+
+        }
+        else if (dropdown.value == 2)
+        {
+            var components = groupSelected.GetComponents(typeof(Move));
+            foreach (Component c in components)
+                Destroy(c);
+
+            groupSelected.gameObject.AddComponent(typeof(Rotate));
+        }
+        */
+    }
+
+    //Remove gameObject from groups and Detroy it
+    private void removeFromGroup(GameObject go)
+    {
+        foreach (GroupElement ge in groups.ToList())
+        {
+            if (go.transform.position == ge.gameObject.transform.position)
+            {
+                groups.Remove(ge);
+                Destroy(go);
+            }
+        }
+    }
+
+    public void DissolveGroup()
+    {
+        Destroy(groupSelected.transform.Find("SelectionCube").gameObject);
+
+        Transform[] groupChildren = new Transform[groupSelected.transform.childCount];
+        for (int i = 0; i < groupSelected.transform.childCount; i++)
+            groupChildren[i] = groupSelected.transform.GetChild(i);
+
+        foreach (Transform t in groupChildren)
+            t.parent = t.parent.parent.parent;
+
+        removeFromGroup(groupSelected.gameObject);
+        popUpGroup.SetActive(false);
     }
     
     public void switchSelectionMode()
@@ -105,9 +250,9 @@ public class CubePlacer : MonoBehaviour
     // Enable or not blue selection viusal
     private void updateMeshRenderer()
     {
-        Transform[] groupsChildren = new Transform[groups.transform.childCount];
-        for (int i = 0; i < groups.transform.childCount; i++) {
-            groupsChildren[i] = groups.transform.GetChild(i);
+        Transform[] groupsChildren = new Transform[groupsObj.transform.childCount];
+        for (int i = 0; i < groupsObj.transform.childCount; i++) {
+            groupsChildren[i] = groupsObj.transform.GetChild(i);
         }
         foreach (Transform group in groupsChildren)
         {
@@ -125,7 +270,7 @@ public class CubePlacer : MonoBehaviour
     public void addGroup()
     {
         GameObject current = Instantiate(currentSelection);
-        current.transform.parent = groups.transform;
+        current.transform.parent = groupsObj.transform;
 
         Vector3 pa2 = pA;
         Vector3 pb2 = pB;
@@ -143,11 +288,23 @@ public class CubePlacer : MonoBehaviour
                 for (int y = iy; y <= fy; y++)
                     if (arr[x, y, z])
                         arr[x, y, z].transform.parent = current.transform;
-        
-        Destroy(currentSelection);
+
         groupSelected = current.transform;
+        Destroy(currentSelection);
+        addGroupElement(current);
+        setPopUpValues();
         popUpGroup.SetActive(true);
         addButton.SetActive(false);
+    }
+
+    private void addGroupElement(GameObject go)
+    {
+        GroupElement ge = new GroupElement();
+        ge.gameObject = go;
+        ge.id = 0;
+        ge.pos = Vector3.zero;
+        ge.speed = 1;
+        groups.Add(ge);
     }
 
     private void Update()
@@ -158,6 +315,9 @@ public class CubePlacer : MonoBehaviour
         else
             selection(ray);
         scrollMove();
+        
+        // Show component details only if not "No Script"
+        ScriptDetails.gameObject.SetActive(dropScript.value != 0);
     }
 
     private void CubePlace(Ray ray)
@@ -232,11 +392,11 @@ public class CubePlacer : MonoBehaviour
     private void getSelectedGroup()
     {
         bool selectGroupBool = false;
-        if (groups)
+        if (groupsObj)
         {
-            Transform[] groupsChildren = new Transform[groups.transform.childCount];
-            for (int i = 0; i < groups.transform.childCount; i++) {
-                groupsChildren[i] = groups.transform.GetChild(i);
+            Transform[] groupsChildren = new Transform[groupsObj.transform.childCount];
+            for (int i = 0; i < groupsObj.transform.childCount; i++) {
+                groupsChildren[i] = groupsObj.transform.GetChild(i);
             }
             foreach (Transform group in groupsChildren)
             {
@@ -256,9 +416,23 @@ public class CubePlacer : MonoBehaviour
         if (!selectGroupBool)
             groupSelected = null;
         else
+        {
+            setPopUpValues();
             Destroy(currentSelection);
-
+        }
         popUpGroup.SetActive(groupSelected);
+    }
+
+    private void setPopUpValues()
+    {
+        var cmp = getComponentInGroups(groupSelected.gameObject);
+        dropScript.value = cmp.id;
+        dropChannel.value = cmp.channel;
+        fieldSpeed.text = cmp.speed.ToString();
+        fieldX.text = cmp.pos.x.ToString();
+        fieldY.text = cmp.pos.y.ToString();
+        fieldZ.text = cmp.pos.z.ToString();
+
     }
 
     //Get selection points position to display correctly
