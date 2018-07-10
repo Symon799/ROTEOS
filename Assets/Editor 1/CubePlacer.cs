@@ -6,13 +6,12 @@ using System.IO;
 
 public class CubePlacer : MonoBehaviour
 {
-    //Public
-    public Camera mycam;
+    //PUBLIC
     public GameObject[] prefabs;
     public GameObject selectionBloc;
     public int lenght = 40;
 
-    //private
+    //PRIVATE
     private Grid grid;
     private GameObject[,,] arr;
     private int[,,] idArr;
@@ -24,7 +23,7 @@ public class CubePlacer : MonoBehaviour
      //SELECTION ----------------------------------------------------------SELECTION
     
     public GameObject addButton;
-    public GameObject removeBtn;
+    public GameObject popUpGroup;
     private bool selectionMode = false;
     private Vector3 pA = Vector3.zero;
     private Vector3 pB = Vector3.zero;
@@ -69,7 +68,7 @@ public class CubePlacer : MonoBehaviour
         groups = new GameObject();
         groups.name = "Groups";
         //selectionMode = true;
-        removeBtn.SetActive(groupSelected);
+        popUpGroup.SetActive(groupSelected);
         addButton.SetActive(false);
     }
 
@@ -82,7 +81,7 @@ public class CubePlacer : MonoBehaviour
     public void removeGroup()
     {
         Destroy(groupSelected.gameObject);
-        removeBtn.SetActive(false);
+        popUpGroup.SetActive(false);
 
     }
     
@@ -92,7 +91,7 @@ public class CubePlacer : MonoBehaviour
         addButton.SetActive(selectionMode);
 
         groupSelected = null;
-        removeBtn.SetActive(false);
+        popUpGroup.SetActive(false);
         addButton.SetActive(false);
 
         if (selectionMode)
@@ -100,10 +99,10 @@ public class CubePlacer : MonoBehaviour
         else
             Destroy(currentSelection);
             
-
         updateMeshRenderer();
     }
 
+    // Enable or not blue selection viusal
     private void updateMeshRenderer()
     {
         Transform[] groupsChildren = new Transform[groups.transform.childCount];
@@ -120,7 +119,6 @@ public class CubePlacer : MonoBehaviour
                     group.transform.GetChild(i).GetComponent<MeshRenderer>().enabled = selectionMode;
                 }
             }
-
         }
     }
 
@@ -140,25 +138,15 @@ public class CubePlacer : MonoBehaviour
         int fz = (int)(pa2.z >= pb2.z ? pa2.z : pb2.z);
         int fy = (int)(pa2.y >= pb2.z ? pa2.y : pb2.y);
 
-        Debug.Log("x: " + ix + "  y: " + iy + " z: " + iz);
-        Debug.Log("fx: " + fx + "  fy: " + fy + " fz: " + fz);
-        Debug.Log("ELEMENTS");
-
         for (int x = ix; x <= fx; x++)
-        {
             for (int z = iz; z <= fz; z++)
-            {
                 for (int y = iy; y <= fy; y++)
-                {
                     if (arr[x, y, z])
                         arr[x, y, z].transform.parent = current.transform;
-                    Debug.Log("x: " + x + "  y: " + y + " z: " + z);
-                }
-            }
-        }
+        
         Destroy(currentSelection);
         groupSelected = current.transform;
-        removeBtn.SetActive(true);
+        popUpGroup.SetActive(true);
         addButton.SetActive(false);
     }
 
@@ -166,29 +154,30 @@ public class CubePlacer : MonoBehaviour
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (!selectionMode)
-        {
-            RaycastHit hitInfo;
-            //Place cube
-            if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out hitInfo))
-            {
-                if (Input.GetMouseButton(0))
-                    PlaceCubeNear(hitInfo.point);
-
-                if (Input.GetMouseButton(2))
-                    DeleteCubeNear(hitInfo.point);
-
-                ShowCubeNear(hitInfo.point);
-            }
-            if (Input.GetKeyDown("r"))
-                rotateBlocY();
-            if (Input.GetKeyDown("t"))
-                rotateBlocX();
-        }
+            CubePlace(ray);
         else
-        {
             selection(ray);
-        }
         scrollMove();
+    }
+
+    private void CubePlace(Ray ray)
+    {
+        RaycastHit hitInfo;
+        //Place cube
+        if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out hitInfo))
+        {
+            if (Input.GetMouseButton(0))
+                PlaceCubeNear(hitInfo.point);
+
+            if (Input.GetMouseButton(2))
+                DeleteCubeNear(hitInfo.point);
+
+            ShowCubeNear(hitInfo.point);
+        }
+        if (Input.GetKeyDown("r"))
+            rotateBlocY();
+        if (Input.GetKeyDown("t"))
+            rotateBlocX();
     }
 
     private void scrollMove()
@@ -214,37 +203,7 @@ public class CubePlacer : MonoBehaviour
                 if (Input.GetMouseButtonDown(0))
                 {
                     pA = grid.GetNearestPointOnGrid(hitInfo.point) / 2;
-                    //check if it is a group
-                    bool selectGroupBool = false;
-                    if (groups)
-                    {
-                        Transform[] groupsChildren = new Transform[groups.transform.childCount];
-                        for (int i = 0; i < groups.transform.childCount; i++) {
-                            groupsChildren[i] = groups.transform.GetChild(i);
-                        }
-                        foreach (Transform group in groupsChildren)
-                        {
-                            Transform[] groupChildren = new Transform[group.transform.childCount];
-                            for (int i = 0; i < group.transform.childCount; i++)
-                            {
-                                if (group.transform.GetChild(i).transform.position == pA * 2)
-                                {
-                                    selectGroupBool = true;
-                                    groupSelected = group;
-                                    Destroy(currentSelection);
-                                    Debug.Log(group.transform.GetChild(i).name);
-                                }
-                            }
-
-                        }
-                    }
-
-                    if (!selectGroupBool)
-                        groupSelected = null;
-                    else
-                        Destroy(currentSelection);
-                    removeBtn.SetActive(groupSelected);
-
+                    getSelectedGroup();
                     if (!groupSelected)
                     {
                         if (!currentSelection)
@@ -259,23 +218,59 @@ public class CubePlacer : MonoBehaviour
                     Vector3 oneVector = new Vector3(1,0,1);
                     pB = grid.GetNearestPointOnGrid(hitInfo.point) / 2;
 
-                    Vector3 pa2 = pA;
-                    Vector3 pb2 = pB;
-
-                    pb2.x = pb2.x >= pa2.x ? pb2.x + 1: pb2.x;
-                    pb2.z = pb2.z >= pa2.z ? pb2.z + 1: pb2.z;
-                    pb2.y = pb2.y >= pa2.y ? pb2.y + 1: pb2.y;
-
-                    pa2.x = pa2.x >= pb2.x ? pa2.x + 1: pa2.x;
-                    pa2.z = pa2.z >= pb2.z ? pa2.z + 1: pa2.z;
-                    pa2.y = pa2.y >= pb2.y ? pa2.y + 1: pa2.y;
-
-                    Vector3 difference = (pb2 - pa2);
-                    difference += new Vector3(difference.x >= 0 ? 0.1f : -0.1f, difference.y >= 0 ? 0.1f : -0.1f, difference.z >= 0 ? 0.1f : -0.1f);
-                    currentSelection.transform.localScale = difference;
+                    Vector3 pa2 = pA, pb2 = pB;
+                    getSelectionPointVisual(ref pa2, ref pb2);
+                    
+                    Vector3 diff = (pb2 - pa2);
+                    diff += new Vector3(diff.x >= 0 ? 0.01f : -0.01f, diff.y >= 0 ? 0.01f : -0.01f, diff.z >= 0 ? 0.01f : -0.01f);
+                    currentSelection.transform.localScale = diff;
                     currentSelection.transform.position = new Vector3(pa2.x * 2 + ((pb2.x - pa2.x)) - 1, pa2.y * 2 + ((pb2.y - pa2.y)) - 1, pa2.z * 2 + (pb2.z - pa2.z) - 1);
                 }
             }
+    }
+
+    private void getSelectedGroup()
+    {
+        bool selectGroupBool = false;
+        if (groups)
+        {
+            Transform[] groupsChildren = new Transform[groups.transform.childCount];
+            for (int i = 0; i < groups.transform.childCount; i++) {
+                groupsChildren[i] = groups.transform.GetChild(i);
+            }
+            foreach (Transform group in groupsChildren)
+            {
+                Transform[] groupChildren = new Transform[group.transform.childCount];
+                for (int i = 0; i < group.transform.childCount; i++)
+                {
+                    if (group.transform.GetChild(i).transform.position == pA * 2)
+                    {
+                        selectGroupBool = true;
+                        groupSelected = group;
+                        Destroy(currentSelection);
+                    }
+                }
+            }
+        }
+
+        if (!selectGroupBool)
+            groupSelected = null;
+        else
+            Destroy(currentSelection);
+
+        popUpGroup.SetActive(groupSelected);
+    }
+
+    //Get selection points position to display correctly
+    private void getSelectionPointVisual(ref Vector3 pa2, ref Vector3 pb2)
+    {
+        pb2.x = pb2.x >= pa2.x ? pb2.x + 1: pb2.x;
+        pb2.z = pb2.z >= pa2.z ? pb2.z + 1: pb2.z;
+        pb2.y = pb2.y >= pa2.y ? pb2.y + 1: pb2.y;
+
+        pa2.x = pa2.x >= pb2.x ? pa2.x + 1: pa2.x;
+        pa2.z = pa2.z >= pb2.z ? pa2.z + 1: pa2.z;
+        pa2.y = pa2.y >= pb2.y ? pa2.y + 1: pa2.y;
     }
 
 
@@ -288,6 +283,7 @@ public class CubePlacer : MonoBehaviour
     {
         currentBloc.transform.Rotate(90, 0, 0, Space.World);
     }
+
     private void PlaceCubeNear(Vector3 clickPoint)
     {
         Vector3 finalPosition = grid.GetNearestPointOnGrid(clickPoint);
@@ -304,9 +300,6 @@ public class CubePlacer : MonoBehaviour
         
         //Add id
         idArr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z] = currentId;
-
-        //Shows grid position
-        Debug.Log(finalPosition);
     }
 
     private void DeleteCubeNear(Vector3 clickPoint)
@@ -329,18 +322,18 @@ public class CubePlacer : MonoBehaviour
         if (!currentBloc)
         {
             currentBloc = Instantiate(prefabs[currentId], finalPosition, Quaternion.identity);
-            SetLayerRecursively(currentBloc.transform.gameObject, 2);
+            SetTransparentRecursively(currentBloc.transform.gameObject, 2);
         }
         currentBloc.transform.position = finalPosition;
     }
 
 
-    private void SetLayerRecursively(GameObject obj, int layer) {
+    private void SetTransparentRecursively(GameObject obj, int layer) {
         obj.layer = layer;
         obj.GetComponentInChildren<Renderer>().material = transparentMaterial;
  
         foreach (Transform child in obj.transform) {
-            SetLayerRecursively(child.gameObject, layer);
+            SetTransparentRecursively(child.gameObject, layer);
         }
     }
 
@@ -362,16 +355,6 @@ public class CubePlacer : MonoBehaviour
                         }
 
         string jsonFile = JsonUtility.ToJson(eltCollection);
-        Debug.Log("JSON FILE \n" + jsonFile + "\n");
-
-        //DEBUG ARR
-        for (int x = 0; x < lenght; x++)
-            for (int y = 0; y < lenght; y++)
-                for (int z = 0; z < lenght; z++)
-                    if (arr[x, y, z])
-                        Debug.Log("X = " + x + " Y = " + y + " Z = " + z);
-        //DEBUG ARR
-
         File.WriteAllText(Application.dataPath + levelName, jsonFile);
     }
 
