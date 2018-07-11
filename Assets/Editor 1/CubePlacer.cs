@@ -26,13 +26,14 @@ public class CubePlacer : MonoBehaviour
     
     public GameObject addButton;
     public GameObject popUpGroup;
-    private Dropdown dropScript, dropChannel;
+    private Dropdown dropScript, dropChannel, dropButtonChannel;
     private InputField fieldSpeed, fieldX, fieldY, fieldZ;
     private bool selectionMode = false;
     private Vector3 pA = Vector3.zero, pB = Vector3.zero;
     private GameObject groupsObj;
     private Transform groupSelected;
     private Transform ScriptDetails;
+    private GameObject interactableGameObject;
 
     public class GroupElement
     {
@@ -43,7 +44,15 @@ public class CubePlacer : MonoBehaviour
         public int channel;
     }
 
+    public class Interactable
+    {
+        public GameObject gameObject;
+        public int channel;
+
+    }
+
     private List<GroupElement> groups;
+    private List<Interactable> interactables;
 
     //JSON ----------------------------------------------------------JSON
     private ElementCollection eltCollection;
@@ -88,6 +97,7 @@ public class CubePlacer : MonoBehaviour
         idArr = new int[lenght, lenght, lenght];
         groupsObj = new GameObject();
         groups = new List<GroupElement>();
+        interactables = new List<Interactable>();
         groupsObj.name = "Groups";
 
         for (int x = 0; x < lenght; x++)
@@ -97,7 +107,7 @@ public class CubePlacer : MonoBehaviour
                     idArr[x, y, z] = -1;
                     arr[x, y, z] = null;
                 }
-                
+
         initUi();
     }
 
@@ -111,6 +121,7 @@ public class CubePlacer : MonoBehaviour
             else if (d.gameObject.name == "Channel")
                 dropChannel = d;
         }
+        dropButtonChannel = popUpGroup.transform.parent.Find("smallPopUpInteract").GetComponentInChildren<Dropdown>();
         InputField[] fieldList = popUpGroup.GetComponentsInChildren<InputField>();
         foreach (InputField i in fieldList)
         {
@@ -126,6 +137,7 @@ public class CubePlacer : MonoBehaviour
 
         popUpGroup.SetActive(groupSelected);
         addButton.SetActive(false);
+        dropButtonChannel.gameObject.transform.parent.gameObject.SetActive(false);
         ScriptDetails = popUpGroup.transform.Find("ScriptDetails");
     }
 
@@ -140,6 +152,12 @@ public class CubePlacer : MonoBehaviour
     public void DeleteGroup()
     {
         removeFromGroup(groupSelected.gameObject);
+
+        //Clean interactabes
+        foreach (Interactable i in interactables.ToList())
+            if (!i.gameObject)
+                interactables.Remove(i);
+
         popUpGroup.SetActive(false);
     }
 
@@ -163,6 +181,18 @@ public class CubePlacer : MonoBehaviour
                 ge.speed = speed;
                 ge.channel = channel;
                 break;
+            }
+        }
+    }
+
+    public void setButtonChannel()
+    {
+        foreach (Interactable i in interactables)
+        {
+            if (interactableGameObject.transform.position == i.gameObject.transform.position)
+            {
+                i.gameObject = interactableGameObject;
+                i.channel = dropButtonChannel.value;
             }
         }
     }
@@ -371,7 +401,7 @@ public class CubePlacer : MonoBehaviour
                         currentSelection.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
                         currentSelection.transform.position = pA * 2;
                     }
-                    addButton.SetActive(!groupSelected && currentSelection);
+                    dropButtonChannel.gameObject.transform.parent.gameObject.SetActive(false);
                 }
                 else if (Input.GetMouseButton(0) && !groupSelected)
                 {
@@ -385,9 +415,60 @@ public class CubePlacer : MonoBehaviour
                     diff += new Vector3(diff.x >= 0 ? 0.01f : -0.01f, diff.y >= 0 ? 0.01f : -0.01f, diff.z >= 0 ? 0.01f : -0.01f);
                     currentSelection.transform.localScale = diff;
                     currentSelection.transform.position = new Vector3(pa2.x * 2 + ((pb2.x - pa2.x)) - 1, pa2.y * 2 + ((pb2.y - pa2.y)) - 1, pa2.z * 2 + (pb2.z - pa2.z) - 1);
+
+                    interactSelection();
                 }
             }
     }
+
+    private void interactSelection()
+    {
+        GameObject singleObject = arr[(int)pA.x, (int)pA.y, (int)pA.z];
+        if (pA == pB && singleObject && (singleObject.transform.Find("buttonInteract") || singleObject.transform.Find("leverInteract")))
+        {
+            bool alreadyInList = false;
+            foreach (Interactable i in interactables.ToList())
+            {
+                if (!i.gameObject)
+                {
+                    interactables.Remove(i);
+                    break;
+                }
+
+                if (i.gameObject.transform.position == singleObject.transform.position)
+                    alreadyInList = true;
+            }
+
+            if (!alreadyInList)
+            {
+                Interactable inter = new Interactable();
+                inter.gameObject = singleObject;
+                inter.channel = 0;
+                interactables.Add(inter);
+            }
+
+            interactableGameObject = singleObject;
+            addButton.SetActive(false);
+            popUpGroup.SetActive(false);
+            dropButtonChannel.gameObject.transform.parent.gameObject.SetActive(true);
+            setInteractableUIValues();
+            
+        }
+        else
+        {
+            addButton.SetActive(!groupSelected && currentSelection);
+            dropButtonChannel.gameObject.transform.parent.gameObject.SetActive(false);
+            interactableGameObject = null;
+        }
+    }
+
+    private void setInteractableUIValues()
+    {
+        foreach (Interactable i in interactables)
+            if (i.gameObject.transform.position == interactableGameObject.transform.position)
+                dropButtonChannel.value = i.channel;
+    }
+
 
     private void getSelectedGroup()
     {
@@ -421,6 +502,7 @@ public class CubePlacer : MonoBehaviour
             Destroy(currentSelection);
         }
         popUpGroup.SetActive(groupSelected);
+        addButton.SetActive(!groupSelected);
     }
 
     private void setPopUpValues()
@@ -504,7 +586,9 @@ public class CubePlacer : MonoBehaviour
 
     private void SetTransparentRecursively(GameObject obj, int layer) {
         obj.layer = layer;
-        obj.GetComponentInChildren<Renderer>().material = transparentMaterial;
+        Renderer renderer = obj.GetComponentInChildren<Renderer>();
+        if (renderer)
+            renderer.material = transparentMaterial;
  
         foreach (Transform child in obj.transform) {
             SetTransparentRecursively(child.gameObject, layer);
