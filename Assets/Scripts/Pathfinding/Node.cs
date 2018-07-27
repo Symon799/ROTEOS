@@ -112,7 +112,6 @@ public class Node : MonoBehaviour, IHeapItem<Node> {
 			if (result.z > 0) { Handles.Label(transform.position, "5"); return 5; }
 			else { Handles.Label(transform.position, "6"); return 6; }
 		}*/
-		Handles.Label(transform.position, "0");
 		return 0;
 	}
 }

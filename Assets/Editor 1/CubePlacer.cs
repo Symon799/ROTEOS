@@ -35,23 +35,23 @@ public class CubePlacer : MonoBehaviour
     private Transform ScriptDetails;
     private GameObject interactableGameObject;
 
-    public class GroupElement
+    public class Group
     {
         public GameObject gameObject;
         public int id;
         public Vector3 pos;
         public float speed;
         public int channel;
+        public Vector3 pA, pB;
     }
 
     public class Interactable
     {
         public GameObject gameObject;
         public int channel;
-
     }
 
-    private List<GroupElement> groups;
+    private List<Group> groups;
     private List<Interactable> interactables;
 
     //JSON ----------------------------------------------------------JSON
@@ -59,7 +59,7 @@ public class CubePlacer : MonoBehaviour
     private string levelName = "/Levels/level.json";
 
     [System.Serializable]
-    public class Element
+    public class ElementJson
     {
         public long id;
         public Vector3 position;
@@ -69,15 +69,24 @@ public class CubePlacer : MonoBehaviour
     [System.Serializable]
     public class ElementCollection
     {
-        public List<Element> elements;
-        public List<Group> groups;
+        public List<ElementJson> elements;
+        public List<GroupJson> groups;
+        public List<InteractableJson> interactables;
     }
 
     [System.Serializable]
-    public class Group
+    public class GroupJson
     {
-        public List<Vector3> elements;
+        public Vector3 pA;
+        public Vector3 pB;
         public ComponentJson component;
+    }
+
+    [System.Serializable]
+    public class InteractableJson
+    {
+        public Vector3 pos;
+        public int channel;
     }
 
     [System.Serializable]
@@ -86,7 +95,7 @@ public class CubePlacer : MonoBehaviour
         public int id;
         public Vector3 position;
         public float speed;
-        public String channel;
+        public int channel;
     }
     //------------------------------------------------------------------
 
@@ -96,7 +105,7 @@ public class CubePlacer : MonoBehaviour
         arr = new GameObject[lenght, lenght, lenght]; 
         idArr = new int[lenght, lenght, lenght];
         groupsObj = new GameObject();
-        groups = new List<GroupElement>();
+        groups = new List<Group>();
         interactables = new List<Interactable>();
         groupsObj.name = "Groups";
 
@@ -161,9 +170,9 @@ public class CubePlacer : MonoBehaviour
         popUpGroup.SetActive(false);
     }
 
-    private GroupElement getComponentInGroups(GameObject go)
+    private Group getComponentInGroups(GameObject go)
     {
-        foreach (GroupElement ge in groups)
+        foreach (Group ge in groups)
             if (go.transform.position == ge.gameObject.transform.position)
                 return ge;
         return null;
@@ -171,11 +180,10 @@ public class CubePlacer : MonoBehaviour
 
     private void setComponentInGroups(Transform go, int id, Vector3 pos, float speed, int channel)
     {
-        foreach (GroupElement ge in groups)
+        foreach (Group ge in groups)
         {
             if (go.position == ge.gameObject.transform.position)
             {
-                Debug.Log("ONE" + go.position);
                 ge.id = id;
                 ge.pos = pos;
                 ge.speed = speed;
@@ -235,7 +243,7 @@ public class CubePlacer : MonoBehaviour
     //Remove gameObject from groups and Detroy it
     private void removeFromGroup(GameObject go)
     {
-        foreach (GroupElement ge in groups.ToList())
+        foreach (Group ge in groups.ToList())
         {
             if (go.transform.position == ge.gameObject.transform.position)
             {
@@ -329,11 +337,13 @@ public class CubePlacer : MonoBehaviour
 
     private void addGroupElement(GameObject go)
     {
-        GroupElement ge = new GroupElement();
+        Group ge = new Group();
         ge.gameObject = go;
         ge.id = 0;
         ge.pos = Vector3.zero;
         ge.speed = 1;
+        ge.pA = pA;
+        ge.pB = pB;
         groups.Add(ge);
     }
 
@@ -598,19 +608,45 @@ public class CubePlacer : MonoBehaviour
     public void WriteJson()
     {
         eltCollection = new ElementCollection();
-        eltCollection.elements = new List<Element>();
+        eltCollection.elements = new List<ElementJson>();
 
+        //Grid
         for (int x = 0; x < lenght; x++)
             for (int y = 0; y < lenght; y++)
                 for (int z = 0; z < lenght; z++)
                     if (arr[x, y, z])
                         {
-                            Element newElt = new Element();
+                            ElementJson newElt = new ElementJson();
                             newElt.id = idArr[x, y, z];
                             newElt.position = arr[x, y, z].transform.position;
                             newElt.rotation = arr[x, y, z].transform.rotation;
                             eltCollection.elements.Add(newElt);
                         }
+
+        //Groups
+        eltCollection.groups = new List<GroupJson>();
+        foreach(Group gr in groups)
+        {
+            GroupJson newGrp = new GroupJson();
+            newGrp.pA = gr.pA;
+            newGrp.pB = gr.pB;
+            newGrp.component = new ComponentJson();
+            newGrp.component.id = gr.id;
+            newGrp.component.position = gr.pos;
+            newGrp.component.speed = gr.speed;
+            newGrp.component.channel = gr.channel;
+            eltCollection.groups.Add(newGrp);
+        }
+
+        //interactables
+        eltCollection.interactables = new List<InteractableJson>();
+        foreach(Interactable i in interactables)
+        {
+            InteractableJson newInter = new InteractableJson();
+            newInter.pos = i.gameObject.transform.position;
+            newInter.channel = i.channel;
+            eltCollection.interactables.Add(newInter);
+        }
 
         string jsonFile = JsonUtility.ToJson(eltCollection);
         File.WriteAllText(Application.dataPath + levelName, jsonFile);
@@ -629,12 +665,77 @@ public class CubePlacer : MonoBehaviour
                         Destroy(arr[x, y, z]);
                         arr[x, y, z] = null;
                     }
+        interactables.Clear();
 
-        foreach (Element elt in eltCollection.elements)
+        foreach (Group g in groups)
+            Destroy(g.gameObject);
+        groups.Clear();
+
+        Destroy(currentSelection);
+        popUpGroup.SetActive(true);
+        addButton.SetActive(false);
+
+        //Load grid
+        foreach (ElementJson elt in eltCollection.elements)
         {
             int id = (int)elt.id;
             arr[(int)elt.position.x / 2, (int)elt.position.y / 2, (int)elt.position.z / 2] = Instantiate(prefabs[id], elt.position, elt.rotation);
             idArr[(int)elt.position.x / 2, (int)elt.position.y / 2, (int)elt.position.z / 2] = id;
+        }
+
+        //Load groups
+        foreach(GroupJson gr in eltCollection.groups)
+        {
+            Vector3 pa2 = gr.pA, pb2 = gr.pB;
+
+            getSelectionPointVisual(ref pa2, ref pb2);
+            
+            Vector3 diff = (pb2 - pa2);
+            diff += new Vector3(diff.x >= 0 ? 0.01f : -0.01f, diff.y >= 0 ? 0.01f : -0.01f, diff.z >= 0 ? 0.01f : -0.01f);
+            selectionBloc.transform.localScale = diff;
+            selectionBloc.transform.position = new Vector3(pa2.x * 2 + ((pb2.x - pa2.x)) - 1, pa2.y * 2 + ((pb2.y - pa2.y)) - 1, pa2.z * 2 + (pb2.z - pa2.z) - 1);
+
+            //ADD GROUP
+            GameObject current = Instantiate(selectionBloc);
+            current.transform.parent = groupsObj.transform;
+
+            pa2 = gr.pA;
+            pb2 = gr.pB;
+
+            int ix = (int)(pa2.x < pb2.x ? pa2.x : pb2.x);
+            int iz = (int)(pa2.z < pb2.z ? pa2.z : pb2.z);
+            int iy = (int)(pa2.y < pb2.z ? pa2.y : pb2.y);
+            
+            int fx = (int)(pa2.x >= pb2.x ? pa2.x : pb2.x);
+            int fz = (int)(pa2.z >= pb2.z ? pa2.z : pb2.z);
+            int fy = (int)(pa2.y >= pb2.z ? pa2.y : pb2.y);
+
+            for (int x = ix; x <= fx; x++)
+                for (int z = iz; z <= fz; z++)
+                    for (int y = iy; y <= fy; y++)
+                        if (arr[x, y, z])
+                            arr[x, y, z].transform.parent = current.transform;
+
+            groupSelected = current.transform;
+
+            //Add group element
+            Group newGrp = new Group();
+            newGrp.gameObject = current;
+            newGrp.id = gr.component.id;
+            newGrp.pos = gr.component.position;
+            newGrp.speed = gr.component.speed;
+            newGrp.channel = gr.component.channel;
+            groups.Add(newGrp);
+            setPopUpValues();
+        }
+
+        //Load interractables
+        foreach(InteractableJson i in eltCollection.interactables)
+        {
+            Interactable newInter = new Interactable();
+            newInter.gameObject =  arr[(int)i.pos.x / 2, (int)i.pos.y / 2, (int)i.pos.z / 2];
+            newInter.channel = i.channel;
+            interactables.Add(newInter);
         }
     }
 }
