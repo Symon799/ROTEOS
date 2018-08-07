@@ -5,6 +5,7 @@ public class Grid : MonoBehaviour
     [SerializeField]
     private float size = 2f;
     public int lenght = 40;
+    public Material lineMaterial;
 
     private void Awake()
     {
@@ -55,9 +56,8 @@ public class Grid : MonoBehaviour
         LineRenderer lineRenderer = myLine.AddComponent<LineRenderer>();
         lineRenderer.useWorldSpace = false;
         lineRenderer.receiveShadows = false;
-        lineRenderer.material = new Material(Shader.Find("Particles/Alpha Blended Premultiply"));
-        //Color32 color32 = new Color32(255, 255, 255, 255);
-        lineRenderer.startColor = Color.green;
+        lineRenderer.material = lineMaterial;
+        lineRenderer.shadowCastingMode = 0;
         LineRenderer lr = myLine.GetComponent<LineRenderer>();
         lr.startWidth = 0.1f;
         lr.SetPosition(0, start);

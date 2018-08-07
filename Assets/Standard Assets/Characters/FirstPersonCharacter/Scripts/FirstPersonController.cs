@@ -40,6 +40,13 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
             if (Input.GetMouseButton(1))
                 RotateView();
+
+            if (Input.GetKey(KeyCode.Space))
+                transform.position += transform.up * speed * Time.deltaTime;
+            else if (Input.GetKey(KeyCode.LeftShift))
+                transform.position -= transform.up * speed * Time.deltaTime;
+
+
             
         }
 
