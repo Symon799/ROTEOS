@@ -16,8 +16,9 @@ public class Node : MonoBehaviour, IHeapItem<Node> {
 
 	public bool walkable {
 		get {
+			
 			foreach (var colliding in Physics.OverlapSphere(this.transform.position, 0.0001f)) {
-				if (colliding.bounds.Contains(this.transform.position) && colliding.gameObject.tag != "Player")
+				if (colliding.bounds.Contains(this.transform.position) && colliding.gameObject.tag != "Player" && colliding.gameObject.tag != "Collectable")
 					return false;
 			}
 			return true && cubeWalkable;
@@ -73,46 +74,31 @@ public class Node : MonoBehaviour, IHeapItem<Node> {
 	public float getFacing() {
 
 		RaycastHit hit;
-
-		if (Physics.Raycast(this.worldPosition, Vector3.down, out hit)) 
+		int layer_mask = LayerMask.GetMask("Ground");
+		if (Physics.Raycast(this.worldPosition, Vector3.down, out hit, layer_mask)) 
 		{
-			if (hit.transform.gameObject == this.cube) { /*Handles.Label(transform.position, "1");*/ return 1; }
+			if (hit.transform.gameObject == this.cube) { return 1; }
 		}
-		if (Physics.Raycast(this.worldPosition, Vector3.up, out hit)) 
+		if (Physics.Raycast(this.worldPosition, Vector3.up, out hit, layer_mask)) 
 		{
-			if (hit.transform.gameObject == this.cube) { /*Handles.Label(transform.position, "2");*/ return 2; }
+			if (hit.transform.gameObject == this.cube) { return 2; }
 		}
-		if (Physics.Raycast(this.worldPosition, Vector3.back, out hit)) 
+		if (Physics.Raycast(this.worldPosition, Vector3.back, out hit, layer_mask)) 
 		{
-			if (hit.transform.gameObject == this.cube) { /*Handles.Label(transform.position, "3");*/ return 3; }
+			if (hit.transform.gameObject == this.cube) { return 3; }
 		}
-		if (Physics.Raycast(this.worldPosition, Vector3.forward, out hit)) 
+		if (Physics.Raycast(this.worldPosition, Vector3.forward, out hit, layer_mask)) 
 		{
-			if (hit.transform.gameObject == this.cube) { /*Handles.Label(transform.position, "4");*/ return 4; }
+			if (hit.transform.gameObject == this.cube) { return 4; }
 		}
-		if (Physics.Raycast(this.worldPosition, Vector3.right, out hit)) 
+		if (Physics.Raycast(this.worldPosition, Vector3.right, out hit, layer_mask)) 
 		{
-			if (hit.transform.gameObject == this.cube) { /*Handles.Label(transform.position, "5");*/ return 5; }
+			if (hit.transform.gameObject == this.cube) { return 5; }
 		}
-		if (Physics.Raycast(this.worldPosition, Vector3.left, out hit)) 
+		if (Physics.Raycast(this.worldPosition, Vector3.left, out hit, layer_mask)) 
 		{
-			if (hit.transform.gameObject == this.cube) { /*Handles.Label(transform.position, "6");*/ return 6; }
+			if (hit.transform.gameObject == this.cube) { return 6; }
 		}
-		/*Vector3 result = this.worldPosition - this.cube.transform.position;
-		Debug.DrawLine(this.cube.transform.position, this.worldPosition, Color.cyan);
-		if (result.x != 0) {
-			if (result.x > 0) { Handles.Label(transform.position, "1"); return 1; }
-			else { Handles.Label(transform.position, "2"); return 2; }
-		}
-		if (result.y != 0) {
-			if (result.y > 0) { Handles.Label(transform.position, "3"); return 3; }
-			else { Handles.Label(transform.position, "4"); return 4; }
-		}
-		if (result.z != 0) {
-			if (result.z > 0) { Handles.Label(transform.position, "5"); return 5; }
-			else { Handles.Label(transform.position, "6"); return 6; }
-		}*/
-		Handles.Label(transform.position, "0");
 		return 0;
 	}
 }

@@ -10,6 +10,8 @@ public class Liquid : MonoBehaviour
 
 	public float speed = 10f;
 
+    public bool moving = true;
+
     private Vector3 baseSize;
 	private int direction = 0;
 
@@ -22,6 +24,8 @@ public class Liquid : MonoBehaviour
     void FixedUpdate()
     {
 		Vector3 tmp = transform.localScale;
+        if (!moving)
+            return;
         if (direction == 1)
         {
 			tmp.z += speed * Time.deltaTime;

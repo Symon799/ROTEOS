@@ -13,10 +13,12 @@ public class WaterMeteoEffect : MonoBehaviour, IMeteoEffect
     private Renderer renderer;
 
     private MeshCollider collider;
+    private Liquid liquid;
 
     void Start()
     {
         renderer = this.gameObject.GetComponent<Renderer>();
+        liquid = this.gameObject.GetComponent<Liquid>();
         baseMaterial = renderer.materials[0];
     }
 
@@ -40,7 +42,7 @@ public class WaterMeteoEffect : MonoBehaviour, IMeteoEffect
         if (status.getTemperature() < 10.0)
         {
             collider.enabled = true;
-            //water.enabled = false;
+            liquid.moving = false;
             foreach (var item in nodes)
             {
                 item.cubeWalkable = true;
@@ -50,7 +52,7 @@ public class WaterMeteoEffect : MonoBehaviour, IMeteoEffect
         else if (status.getTemperature() > 25.5)
         {
             collider.enabled = false;
-            //water.enabled = true;
+            liquid.moving = true;
             foreach (var item in nodes)
             {
                 item.cubeWalkable = false;
@@ -60,7 +62,7 @@ public class WaterMeteoEffect : MonoBehaviour, IMeteoEffect
         else
         {
             collider.enabled = false;
-            //water.enabled = true;
+            liquid.moving = true;
             foreach (var item in nodes)
             {
                 item.cubeWalkable = false;
@@ -72,7 +74,7 @@ public class WaterMeteoEffect : MonoBehaviour, IMeteoEffect
             case WeatherType.SNOW:
                 materialArray[0] = IceMaterial;
                 collider.enabled = true;
-                //water.enabled = false;
+                liquid.moving = false;
                 foreach (var item in nodes)
                 {
                     item.cubeWalkable = true;

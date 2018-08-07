@@ -2,33 +2,31 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using System.Linq;
 
-public class AgentScript : MonoBehaviour {
+public class AgentScript : MonoBehaviour
+{
 
     public GameObject prefabParticles;
     public GameObject waterParticles;
 
-    private  GameObject IntanceParticle;
-    private bool isMoving = false;
-    private NavMeshAgent agent;
+    private GameObject InstanceParticle = null;
+    private Movement movement;
 
-	// Use this for initialization
-	void Start () {
-        agent = GameObject.FindGameObjectWithTag("Player").GetComponent<NavMeshAgent>();
-	}
-	
-	// Update is called once per frame
-	void Update ()
+    // Use this for initialization
+    void Start()
     {
-        if (agent.velocity == Vector3.zero && isMoving == true)
-        {
-            Destroy(IntanceParticle);
-            isMoving = false;
-        }
+        movement = GameObject.FindGameObjectWithTag("Player").GetComponent<Movement>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
         if (Input.GetButtonDown("Fire1"))
+        {
             if (Physics.Raycast(ray, out hit, 100))
             {
                 if (hit.collider.CompareTag("Water"))
@@ -36,20 +34,25 @@ public class AgentScript : MonoBehaviour {
                     Vector3 partPos = new Vector3(hit.point.x, hit.point.y, hit.point.z);
                     Instantiate(waterParticles, partPos, waterParticles.transform.rotation);
                 }
-                else if (!hit.collider.CompareTag("NonWalkable") && !hit.collider.CompareTag("Interact"))
-                {
-                    if (IntanceParticle)
-                        Destroy(IntanceParticle);
-
-                    Vector3 partPos = new Vector3(hit.point.x, hit.point.y, hit.point.z);
-                    IntanceParticle = Instantiate(prefabParticles, partPos, hit.transform.rotation);
-                    
-
-                    agent.SetDestination(hit.transform.position);
-                    isMoving = true;
-                    agent.velocity = new Vector3(0.01f, 0.01f, 0.01f); //workaround for the new navMeshSystem bugged when rotated
-                }
             }
+        }
 
+        UpdateRouteParticles();
+
+
+    }
+
+    void UpdateRouteParticles()
+    {
+        if (movement.Route.Count > 0 && InstanceParticle == null)
+        {
+            Node tmp = movement.Route.LastOrDefault();
+            InstanceParticle = Instantiate(prefabParticles, tmp.worldPosition, tmp.transform.localRotation);
+        }
+        else if (InstanceParticle != null && movement.CurrentNode == null && movement.Route.Count == 0)
+        {
+            Destroy(InstanceParticle);
+            InstanceParticle = null;
+        }
     }
 }

@@ -26,19 +26,18 @@ public class Gravity : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+   /* void FixedUpdate()
     {
 		UpdatePersonalNormal();
         //rb.AddForce(-personalGravity * rb.mass * personalNormal);
-    }
+    }*/
 
     void OnTriggerStay(Collider other)
     {
 		//Debug.Log("NEW PARENT");
         if (other.gameObject.tag == "Walkable")
         {
-            /*transform.SetParent(other.transform, true);
-			ChildOf = other.gameObject;*/
+            transform.SetParent(other.transform, true);
         }
     }
 
@@ -46,8 +45,7 @@ public class Gravity : MonoBehaviour
     {
         if (other.gameObject.tag == "Walkable")
         {
-            /*transform.SetParent(null, true);
-			ChildOf = null;*/
+            transform.SetParent(null, true);
         }
     }
 

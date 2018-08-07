@@ -4,33 +4,35 @@ using UnityEngine;
 using UnityEngine.AI;
 using TMPro;
 
-public class Finish : MonoBehaviour {
+public class Finish : MonoBehaviour
+{
 
-    public GameObject characterPrefab;
-	public GameObject SuccessImage;
-	public GameObject ScoreText;
-	private GameObject scoreObject;
+    public GameObject SuccessImage;
+    public GameObject ScoreText;
+    private GameObject scoreObject;
 
-	private GameObject character;
-	private Transform startPos;
-	private NavMeshAgent agent;
+    private bool hasWon = false;
 
-	void Awake()
-	{
-		startPos = GameObject.FindGameObjectWithTag("Start").transform;
-		character = Instantiate(characterPrefab, startPos);
-		character.transform.position = startPos.position;
-		scoreObject = GameObject.FindGameObjectWithTag("Score");
-	}
-	
-	void OnTriggerEnter(Collider other)
+    void Awake()
     {
-		if (other.tag == "Player")
-		{
-        	Debug.Log("FINISHED !");
-			character.GetComponent<NavMeshAgent>().ResetPath();
-			SuccessImage.SetActive(true);
-			SuccessImage.GetComponentInChildren<TextMeshProUGUI>().SetText(scoreObject.GetComponent<ScoreHandler>().GetCrystals().ToString());
-			ScoreText.SetActive(false);		}
-	}
+        scoreObject = GameObject.FindGameObjectWithTag("Score");
+    }
+
+    void Update()
+    {
+        if (!hasWon)
+        {
+            foreach (Transform child in transform)
+            {
+                if (child.tag == "Player")
+                {
+                    Debug.Log("FINISHED !");
+					hasWon = true;
+                    SuccessImage.SetActive(true);
+                    SuccessImage.GetComponentInChildren<TextMeshProUGUI>().SetText(scoreObject.GetComponent<ScoreHandler>().GetCrystals().ToString());
+                    ScoreText.SetActive(false);
+                }
+            }
+        }
+    }
 }
