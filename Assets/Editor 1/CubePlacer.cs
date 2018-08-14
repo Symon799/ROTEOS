@@ -383,12 +383,12 @@ public class CubePlacer : MonoBehaviour
     private void scrollMove()
     {
         //Scroll position
-        if (Input.GetAxis("Mouse ScrollWheel") > 0f)
+        if (Input.GetAxis("Mouse ScrollWheel") > 0f && transform.position.y < lenght)
         {
             Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y + 2, Camera.main.transform.position.z);
             transform.position = new Vector3(transform.position.x, transform.position.y + 2, transform.position.z);
         }
-        else if (Input.GetAxis("Mouse ScrollWheel") < 0f)
+        else if (Input.GetAxis("Mouse ScrollWheel") < 0f && transform.position.y > 4)
         {
             Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y - 2, Camera.main.transform.position.z);
             transform.position = new Vector3(transform.position.x, transform.position.y - 2, transform.position.z);
