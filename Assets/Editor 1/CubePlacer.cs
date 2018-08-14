@@ -148,6 +148,7 @@ public class CubePlacer : MonoBehaviour
         addButton.SetActive(false);
         dropButtonChannel.gameObject.transform.parent.gameObject.SetActive(false);
         ScriptDetails = popUpGroup.transform.Find("ScriptDetails");
+        updateOutline();
     }
 
     public void setBloc(int id)
@@ -168,6 +169,7 @@ public class CubePlacer : MonoBehaviour
                 interactables.Remove(i);
 
         popUpGroup.SetActive(false);
+        updateOutline();
     }
 
     private Group getComponentInGroups(GameObject go)
@@ -276,6 +278,7 @@ public class CubePlacer : MonoBehaviour
         groupSelected = null;
         popUpGroup.SetActive(false);
         addButton.SetActive(false);
+        updateOutline();
 
         if (selectionMode)
             Destroy(currentBloc);
@@ -305,6 +308,27 @@ public class CubePlacer : MonoBehaviour
         }
     }
 
+    private void updateOutline()
+    {
+        Transform[] groupsChildren = new Transform[groupsObj.transform.childCount];
+        for (int i = 0; i < groupsObj.transform.childCount; i++) {
+            groupsChildren[i] = groupsObj.transform.GetChild(i);
+        }
+        foreach (Transform group in groupsChildren)
+        {
+            Transform[] groupChildren = new Transform[group.transform.childCount];
+            for (int i = 0; i < group.transform.childCount; i++)
+            {
+                if (group.transform.GetChild(i).name == "SelectionCube" && group.transform.GetChild(i).GetComponent<cakeslice.Outline>())
+                {
+                    group.transform.GetChild(i).GetComponent<cakeslice.Outline>().enabled = false;
+                }
+            }
+        }
+        if (popUpGroup.activeSelf)
+            groupSelected.transform.Find("SelectionCube").gameObject.GetComponent<cakeslice.Outline>().enabled = true;
+    }
+
     public void addGroup()
     {
         GameObject current = Instantiate(currentSelection);
@@ -328,11 +352,15 @@ public class CubePlacer : MonoBehaviour
                         arr[x, y, z].transform.parent = current.transform;
 
         groupSelected = current.transform;
+
+        groupSelected.transform.Find("SelectionCube").gameObject.AddComponent(typeof(cakeslice.Outline)).GetComponent<cakeslice.Outline>().color = 3;
+        updateOutline();
         Destroy(currentSelection);
         addGroupElement(current);
         setPopUpValues();
         popUpGroup.SetActive(true);
         addButton.SetActive(false);
+        updateOutline();
     }
 
     private void addGroupElement(GameObject go)
@@ -388,7 +416,7 @@ public class CubePlacer : MonoBehaviour
             Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y + 2, Camera.main.transform.position.z);
             transform.position = new Vector3(transform.position.x, transform.position.y + 2, transform.position.z);
         }
-        else if (Input.GetAxis("Mouse ScrollWheel") < 0f && transform.position.y > 4)
+        else if (Input.GetAxis("Mouse ScrollWheel") < 0f && transform.position.y > 3) // semi-bloc + move = 3
         {
             Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y - 2, Camera.main.transform.position.z);
             transform.position = new Vector3(transform.position.x, transform.position.y - 2, transform.position.z);
@@ -462,7 +490,7 @@ public class CubePlacer : MonoBehaviour
             popUpGroup.SetActive(false);
             dropButtonChannel.gameObject.transform.parent.gameObject.SetActive(true);
             setInteractableUIValues();
-            
+            updateOutline();
         }
         else
         {
@@ -513,6 +541,7 @@ public class CubePlacer : MonoBehaviour
         }
         popUpGroup.SetActive(groupSelected);
         addButton.SetActive(!groupSelected);
+        updateOutline();
     }
 
     private void setPopUpValues()
@@ -674,6 +703,7 @@ public class CubePlacer : MonoBehaviour
         Destroy(currentSelection);
         popUpGroup.SetActive(true);
         addButton.SetActive(false);
+        updateOutline();
 
         //Load grid
         foreach (ElementJson elt in eltCollection.elements)
