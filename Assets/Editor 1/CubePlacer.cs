@@ -303,6 +303,7 @@ public class CubePlacer : MonoBehaviour
                 if (group.transform.GetChild(i).name == "SelectionCube")
                 {
                     group.transform.GetChild(i).GetComponent<MeshRenderer>().enabled = selectionMode;
+                    group.transform.GetChild(i).GetComponent<BoxCollider>().enabled = selectionMode;
                 }
             }
         }
@@ -352,15 +353,41 @@ public class CubePlacer : MonoBehaviour
                         arr[x, y, z].transform.parent = current.transform;
 
         groupSelected = current.transform;
+        GameObject selectionCube = groupSelected.transform.Find("SelectionCube").gameObject;
 
-        groupSelected.transform.Find("SelectionCube").gameObject.AddComponent(typeof(cakeslice.Outline)).GetComponent<cakeslice.Outline>().color = 3;
-        updateOutline();
+        selectionCube.AddComponent(typeof(cakeslice.Outline)).GetComponent<cakeslice.Outline>().color = 3;
+        selectionCube.AddComponent(typeof(BoxCollider));
         Destroy(currentSelection);
         addGroupElement(current);
         setPopUpValues();
         popUpGroup.SetActive(true);
         addButton.SetActive(false);
         updateOutline();
+    }
+
+    public void updateGroupComposition()
+    {
+        foreach (Group gr in groups)
+        {
+            Vector3 pa2 = gr.pA;
+            Vector3 pb2 = gr.pB;
+
+            int ix = (int)(pa2.x < pb2.x ? pa2.x : pb2.x);
+            int iz = (int)(pa2.z < pb2.z ? pa2.z : pb2.z);
+            int iy = (int)(pa2.y < pb2.z ? pa2.y : pb2.y);
+            
+            int fx = (int)(pa2.x >= pb2.x ? pa2.x : pb2.x);
+            int fz = (int)(pa2.z >= pb2.z ? pa2.z : pb2.z);
+            int fy = (int)(pa2.y >= pb2.z ? pa2.y : pb2.y);
+
+            for (int x = ix; x <= fx; x++)
+                for (int z = iz; z <= fz; z++)
+                    for (int y = iy; y <= fy; y++)
+                    {
+                        if (arr[x, y, z])
+                            arr[x, y, z].transform.parent = gr.gameObject.transform;
+                    }
+        }
     }
 
     private void addGroupElement(GameObject go)
@@ -431,7 +458,7 @@ public class CubePlacer : MonoBehaviour
                 if (Input.GetMouseButtonDown(0))
                 {
                     pA = grid.GetNearestPointOnGrid(hitInfo.point) / 2;
-                    getSelectedGroup();
+                    getSelectedGroup(hitInfo.collider.gameObject);
                     if (!groupSelected)
                     {
                         if (!currentSelection)
@@ -508,37 +535,19 @@ public class CubePlacer : MonoBehaviour
     }
 
 
-    private void getSelectedGroup()
+    private void getSelectedGroup(GameObject hitObject)
     {
-        bool selectGroupBool = false;
-        if (groupsObj)
+        if (hitObject.name == "SelectionCube")
         {
-            Transform[] groupsChildren = new Transform[groupsObj.transform.childCount];
-            for (int i = 0; i < groupsObj.transform.childCount; i++) {
-                groupsChildren[i] = groupsObj.transform.GetChild(i);
-            }
-            foreach (Transform group in groupsChildren)
-            {
-                Transform[] groupChildren = new Transform[group.transform.childCount];
-                for (int i = 0; i < group.transform.childCount; i++)
-                {
-                    if (group.transform.GetChild(i).transform.position == pA * 2)
-                    {
-                        selectGroupBool = true;
-                        groupSelected = group;
-                        Destroy(currentSelection);
-                    }
-                }
-            }
+            groupSelected = hitObject.transform.parent;
+            Destroy(currentSelection);
+            updateGroupComposition();
         }
-
-        if (!selectGroupBool)
-            groupSelected = null;
         else
         {
-            setPopUpValues();
-            Destroy(currentSelection);
+            groupSelected = null;
         }
+
         popUpGroup.SetActive(groupSelected);
         addButton.SetActive(!groupSelected);
         updateOutline();
@@ -595,6 +604,7 @@ public class CubePlacer : MonoBehaviour
         
         //Add id
         idArr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z] = currentId;
+        updateGroupComposition();
     }
 
     private void DeleteCubeNear(Vector3 clickPoint)
@@ -609,6 +619,7 @@ public class CubePlacer : MonoBehaviour
             Destroy(go);
             arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z] = null;
         }
+        updateGroupComposition();
     }
 
     private void ShowCubeNear(Vector3 clickPoint)
