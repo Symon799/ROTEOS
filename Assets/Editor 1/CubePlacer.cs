@@ -450,6 +450,34 @@ public class CubePlacer : MonoBehaviour
         }
     }
 
+    private bool valueInRange(float value, float lim1, float lim2)
+    {
+        float min = lim1 < lim2 ? lim1 : lim2;
+        float max = lim1 > lim2 ? lim1 : lim2;
+        return (value >= min) && (value <= max);
+    }
+
+    private bool isOverlapping()
+    {
+        //HERE
+        foreach (Group gr in groups)
+        {
+            
+            bool xOverlap = valueInRange(pA.x, gr.pA.x, gr.pB.x) || valueInRange(gr.pA.x, pA.x, pB.x)
+                            || valueInRange(pB.x, gr.pA.x, gr.pB.x) || valueInRange(gr.pB.x, pA.x, pB.x);
+
+            bool yOverlap = valueInRange(pA.y, gr.pA.y, gr.pB.y) || valueInRange(gr.pA.y, pA.y, pB.y)
+                            || valueInRange(pB.y, gr.pA.y, gr.pB.y) || valueInRange(gr.pB.y, pA.y, pB.y);
+
+            bool zOverlap = valueInRange(pA.z, gr.pA.z, gr.pB.z) || valueInRange(gr.pA.z, pA.z, pB.z)
+                            || valueInRange(pB.z, gr.pA.z, gr.pB.z) || valueInRange(gr.pB.z, pA.z, pB.z);
+
+            if (xOverlap && yOverlap && zOverlap)
+                return true;
+        }
+        return false;
+    }
+
     private void selection(Ray ray)
     {
         RaycastHit hitInfo;
@@ -468,10 +496,12 @@ public class CubePlacer : MonoBehaviour
                     }
                     dropButtonChannel.gameObject.transform.parent.gameObject.SetActive(false);
                 }
-                else if (Input.GetMouseButton(0) && !groupSelected)
+                else if (Input.GetMouseButton(0) && !groupSelected && hitInfo.collider.gameObject.name == "Plane")
                 {
                     Vector3 oneVector = new Vector3(1,0,1);
                     pB = grid.GetNearestPointOnGrid(hitInfo.point) / 2;
+                    if (isOverlapping())
+                        return;
 
                     Vector3 pa2 = pA, pb2 = pB;
                     getSelectionPointVisual(ref pa2, ref pb2);
