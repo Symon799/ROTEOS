@@ -443,7 +443,7 @@ public class CubePlacer : MonoBehaviour
             Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y + 2, Camera.main.transform.position.z);
             transform.position = new Vector3(transform.position.x, transform.position.y + 2, transform.position.z);
         }
-        else if (Input.GetAxis("Mouse ScrollWheel") < 0f && transform.position.y > 3) // semi-bloc + move = 3
+        else if (Input.GetAxis("Mouse ScrollWheel") < 0f && transform.position.y > 1) // semi-bloc
         {
             Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y - 2, Camera.main.transform.position.z);
             transform.position = new Vector3(transform.position.x, transform.position.y - 2, transform.position.z);
@@ -462,7 +462,6 @@ public class CubePlacer : MonoBehaviour
         //HERE
         foreach (Group gr in groups)
         {
-            
             bool xOverlap = valueInRange(pA.x, gr.pA.x, gr.pB.x) || valueInRange(gr.pA.x, pA.x, pB.x)
                             || valueInRange(pB.x, gr.pA.x, gr.pB.x) || valueInRange(gr.pB.x, pA.x, pB.x);
 
@@ -474,6 +473,7 @@ public class CubePlacer : MonoBehaviour
 
             if (xOverlap && yOverlap && zOverlap)
                 return true;
+
         }
         return false;
     }
