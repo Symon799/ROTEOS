@@ -31,6 +31,21 @@ public class Movement : MonoBehaviour
             else return float.NaN;
         }
     }
+
+    Transform CurrentCube
+    {
+        get
+        {
+            Ray ray = new Ray(this.transform.position, -this.transform.up);
+            RaycastHit hit;
+            int layer_mask = LayerMask.GetMask("Ground");
+            if (Physics.Raycast(ray, out hit, float.PositiveInfinity, layer_mask))
+                return hit.transform;
+            else
+                return null;
+        }
+    }
+
     float groundAngle;
     Vector3 forward;
     RaycastHit hitInfo;
@@ -65,8 +80,11 @@ public class Movement : MonoBehaviour
 
         //transform.localScale = locScale;
         //Debug.Log(DefaultTrackableEventHandler.trackableFounded);
-        if (!DefaultTrackableEventHandler.trackableFounded)
-            return;
+
+        /* A MODIFIER POUR LE JEU MOBILE -> NECESSAIRE POUR LE FONCTIONNEMENT AVEC VUFORIA*/
+        /*if (!DefaultTrackableEventHandler.trackableFounded)
+            return;*/
+
         if (Input.GetButtonDown("Fire1"))
         {
             //Debug.Log("CLICK");
@@ -88,8 +106,6 @@ public class Movement : MonoBehaviour
             Rotate();
             if (hasArrived(movementThreshold))
             {
-                //Debug.Log("HAS ARRIVED");
-                characterRigidbody.velocity = characterRigidbody.velocity / 100;
                 CurrentNode = null;
             }
         }
@@ -115,12 +131,21 @@ public class Movement : MonoBehaviour
         float angle = Vector3.SignedAngle(Vector3.ProjectOnPlane(toPoint, transform.up), transform.forward, transform.up);
 
         if (Mathf.Abs(angle) <= angleThreshold)
-        {
-            Move();
+        {   
+            if ((CurrentCube.tag == "Walkable" && CurrentNode.cube.tag == "Water") ||
+            (CurrentCube.tag == "Water" && CurrentNode.cube.tag == "Walkable"))
+            {
+                Debug.Log("G to W");
+                Jump();
+            } else
+            {
+                Move();
+            }
             return;
         }
-
-        //Debug.Log("SIGN : " + Mathf.Sign(angle));
+        if (Mathf.Abs(angle) > 45f)
+            characterRigidbody.velocity = characterRigidbody.velocity / 100;
+        Debug.Log("SIGN : " + angle);
         if (Mathf.Sign(angle) == -1)
         {
             //Debug.Log("RIGHT");
@@ -136,7 +161,13 @@ public class Movement : MonoBehaviour
     void Move()
     {
         if (groundAngle >= maxGroundAngle || !isGrounded()) return;
-        characterRigidbody.AddForce(forward * velocity * Time.deltaTime);
+        characterRigidbody.AddForce(forward * velocity * Time.deltaTime, ForceMode.Acceleration);
+    }
+
+    void Jump()
+    {   
+        //if (isGrounded())
+            characterRigidbody.AddForce((personalNormal + forward) * Vector3.Distance(botPosition, CurrentNode.worldPosition) * velocity/2 * Time.deltaTime, ForceMode.Impulse);
     }
 
     void CalculateForward()
@@ -233,7 +264,7 @@ public class Movement : MonoBehaviour
         if (_pathfinder != null)
         {
 
-            Gizmos.color = Color.blue;
+            /*Gizmos.color = Color.blue;
             Gizmos.DrawSphere(botPosition, 0.3f);
             Gizmos.DrawLine(transform.position, transform.position + forward * height);
             foreach (var node in _pathfinder.GetGrid())
@@ -252,7 +283,7 @@ public class Movement : MonoBehaviour
                     Gizmos.DrawLine(node.worldPosition, nodeNeigbor.worldPosition);
                 }
 
-            }
+            }*/
             if (Route != null)
             {
 
