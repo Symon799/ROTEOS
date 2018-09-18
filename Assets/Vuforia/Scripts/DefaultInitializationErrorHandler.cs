@@ -5,7 +5,7 @@ Copyright (c) 2010-2014 Qualcomm Connected Experiences, Inc.
 All Rights Reserved.
 Confidential and Proprietary - Protected under copyright and other laws.
 ==============================================================================*/
-
+#if UNITY_IOS || UNITY_ANDROID
 using UnityEngine;
 using Vuforia;
 
@@ -238,3 +238,4 @@ public class DefaultInitializationErrorHandler : VuforiaMonoBehaviour
 
     #endregion // PRIVATE_METHODS
 }
+#endif
