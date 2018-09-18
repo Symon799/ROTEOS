@@ -1,52 +1,109 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
+using Zenject;
 
 public class LevelGenerator : MonoBehaviour
 {
-	public Material WaterMaterial;
 
-    void Start()
+    public static string levelName
     {
-		mergeWater();
+        get
+        {
+            return levelName;
+        }
+        set
+        {
+            levelName = value;
+        }
     }
 
+    public List<GameObject> Objects;
 
-    public void mergeWater()
+    [Inject]
+    private DiContainer _diContainer;
+
+    // Update is called once per frame
+    void Start()
     {
-        GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("Water");
-		if (gameObjects.Length == 0)
-			return;
-        List<MeshFilter> meshFilters = new List<MeshFilter>();
-		foreach (var obj in gameObjects) {
-			meshFilters.Add(obj.GetComponent<MeshFilter>());
-		}
-        CombineInstance[] combine = new CombineInstance[meshFilters.Count];
-        int i = 0;
-        while (i < meshFilters.Count)
+		InitializeLevel(ReadLevelJSON("level"));
+    }
+
+    public void instanciate(Element Element)
+    {
+
+        _diContainer.InstantiatePrefab(Element.toInstantiate(), Element.Position, Element.Rotation, null);
+    }
+
+    public void instanciate(GameObject GameObject)
+    {
+        _diContainer.InstantiatePrefab(GameObject, GameObject.transform.position, GameObject.transform.rotation, null);
+    }
+
+    public void SpawnCharacter()
+    {
+
+    }
+
+    public List<Element> ReadLevelJSON(string levelName)
+    {
+        try
         {
-            combine[i].mesh = meshFilters[i].sharedMesh;
-            combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
-			foreach (Transform child in meshFilters[i].gameObject.transform) {
-				
-				GameObject square = new GameObject();
-				square.transform.SetParent(transform);
-				child.GetComponent<Node>().cubeWalkable = false;
-				child.GetComponent<Node>().cube = square.gameObject;
-				child.transform.SetParent(square.transform, true);
+            string filePath = Path.Combine(Application.persistentDataPath, "Levels/" + levelName);
+			Debug.Log(filePath);
+            if (File.Exists(filePath))
+            {
+                string dataAsJson = File.ReadAllText(filePath);
+                JsonLevel loadedData = JsonUtility.FromJson<JsonLevel>(dataAsJson);
+
+				Debug.Log(dataAsJson);
+                List<Element> Elements = new List<Element>();
+				Debug.Log(JsonUtility.ToJson(loadedData));
+                foreach (var element in loadedData.elements)
+                {
+                    Element elm = new Element(idToGameObject(element.id));
+                    elm.Position = new Vector3(element.position.x, element.position.y, element.position.z);
+                    elm.Rotation = new Quaternion(element.rotation.x, element.rotation.y, element.rotation.z, element.rotation.w);
+                    Elements.Add(elm);
+                }
+                return Elements;
+            }
+			else
+			{
+				Debug.Log("Can't find file !");
 			}
-			meshFilters[i].gameObject.SetActive(false);
-            i++;
         }
-        transform.GetComponent<MeshFilter>().mesh = new Mesh();
-        transform.GetComponent<MeshFilter>().mesh.CombineMeshes(combine, false, true, true);
-		transform.GetComponent<Renderer>().material = WaterMaterial;
-		var script = transform.gameObject.AddComponent<Water>();
-		script.waveFrequency = 0.1f;
-		script.waveHeight = 0.1f;
-		var collider = transform.gameObject.AddComponent<MeshCollider>();
-		collider.convex = true;
-		collider.enabled = false;
-        transform.gameObject.SetActive(true);
+        catch (Exception e)
+        {
+            Debug.LogException(e, this);
+            Debug.Log("Can't find designed level");
+            return null;
+        }
+
+
+        return null;
+    }
+
+    public bool InitializeLevel(List<Element> elements)
+    {
+        try
+        {
+            foreach (var elm in elements)
+            {
+                instanciate(elm);
+            }
+			return true;
+        }
+		catch
+		{
+			return false;
+		}
+    }
+
+    public GameObject idToGameObject(int id)
+    {
+        return Objects[id];
     }
 }

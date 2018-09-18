@@ -2,32 +2,44 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Element {
+public class Element
+{
 
-	public GameObject Basic;
+    public GameObject Basic;
 
-	public Vector3 Position;
-	
-	public Quaternion Rotation;
+    public Vector3 Position;
 
-	public Vector3 Scale;
+    public Quaternion Rotation;
 
-	public List<IScript> Scripts;
+    public Vector3 Scale;
 
-	public Element(GameObject basic, List<IScript> scripts) {
-		Basic = basic;
-		Scripts = scripts;
-	}
+    public List<IScript> Scripts;
 
-	public GameObject toInstantiate()
+    public Element(GameObject basic)
+    {
+        Basic = basic;
+    }
+
+    public GameObject toInstantiate()
+    {
+        GameObject result = this.Basic;
+        result.transform.position = this.Position;
+        result.transform.rotation = this.Rotation;
+        //result.transform.localScale = this.Scale;
+        if (Scripts != null)
+        {
+            foreach (IScript script in this.Scripts)
+            {
+                script.AddComponent(result);
+            }
+        }
+        return result;
+    }
+
+	public void AddScript(IScript script)
 	{
-		GameObject result = this.Basic;
-		result.transform.position = this.Position;
-		result.transform.rotation = this.Rotation;
-		result.transform.localScale = this.Scale;
-		foreach (IScript script in this.Scripts) {
-			script.AddComponent(result);
-		}
-		return result;
+		if (Scripts == null)
+			Scripts = new List<IScript>();
+		Scripts.Add(script);
 	}
 }
