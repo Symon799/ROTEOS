@@ -65,8 +65,10 @@ public class Movement : MonoBehaviour
 
         //transform.localScale = locScale;
         //Debug.Log(DefaultTrackableEventHandler.trackableFounded);
+        #if UNITY_IOS || UNITY_ANDROID
         if (!DefaultTrackableEventHandler.trackableFounded)
             return;
+        #endif
         if (Input.GetButtonDown("Fire1"))
         {
             //Debug.Log("CLICK");
