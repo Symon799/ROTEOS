@@ -6,29 +6,13 @@ using UnityEngine.Networking;
 using Zenject;
 using CI.HttpClient;
 
-public class SailsRequester : MonoBehaviour {
+public class SailsRequester : ISailsRequester {
 
 
 	 [Inject]
     private IWebRequester _webRequester;
 	
-	public string name = "SailsRequester"; 
-
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
-
-
-
-
-
-
+	public string name = "SailsRequester";
 
     public IEnumerator postJson(string jsonLevel) {
 
