@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using System.IO;
 using UnityEngine.UI;
+using Zenject;
 using System.Linq;
 
 public class CubePlacer : MonoBehaviour
@@ -21,6 +22,13 @@ public class CubePlacer : MonoBehaviour
     private GameObject currentSelection;
     public Material transparentMaterial;
     private int currentId = 0;
+
+    // PRIVATE INJECT
+    [Inject]
+    private SailsRequester _sailsRequester;
+
+     [Inject]
+    private MeteoRequester _webRequester;
 
      //SELECTION ----------------------------------------------------------SELECTION
     
@@ -719,8 +727,20 @@ public class CubePlacer : MonoBehaviour
         }
 
         string jsonFile = JsonUtility.ToJson(eltCollection);
-        File.WriteAllText(Application.dataPath + levelName, jsonFile);
+
+        /// Post request
+        Debug.Log("JSSSSSOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN POST");
+
+        Debug.Log(_webRequester.locationMaxTime);
+        Debug.Log(_sailsRequester.name);
+
+        _sailsRequester.postJson(jsonFile);
+       
+
+        ///
+        //File.WriteAllText(Application.dataPath + levelName, jsonFile);
     }
+
 
     public void LoadJson()
     {
