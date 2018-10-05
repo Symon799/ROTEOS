@@ -25,10 +25,8 @@ public class CubePlacer : MonoBehaviour
 
     // PRIVATE INJECT
     [Inject]
-    private SailsRequester _sailsRequester;
+    private ISailsRequester _sailsRequester;
 
-     [Inject]
-    private MeteoRequester _webRequester;
 
      //SELECTION ----------------------------------------------------------SELECTION
     
@@ -729,12 +727,12 @@ public class CubePlacer : MonoBehaviour
         string jsonFile = JsonUtility.ToJson(eltCollection);
 
         /// Post request
-        Debug.Log("JSSSSSOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN POST");
+        Debug.Log("Begining POST");
 
-        Debug.Log(_webRequester.locationMaxTime);
-        Debug.Log(_sailsRequester.name);
 
         _sailsRequester.postJson(jsonFile);
+        
+        Debug.Log("Ending POST");
        
 
         ///

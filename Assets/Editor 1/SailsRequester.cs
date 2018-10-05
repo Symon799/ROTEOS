@@ -12,10 +12,10 @@ public class SailsRequester : ISailsRequester {
 	 [Inject]
     private IWebRequester _webRequester;
 	
-	public string name = "SailsRequester";
+
 
     public IEnumerator postJson(string jsonLevel) {
-
+         Debug.Log("Welcome to postJson");
         string sailsUrl = "https://immense-lake-57494.herokuapp.com/userslevelseditor/";
          Dictionary<string, string> parameters = new Dictionary<string, string>();
          parameters.Add("user_id", "20");
