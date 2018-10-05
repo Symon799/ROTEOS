@@ -35,7 +35,7 @@ public class Gravity : MonoBehaviour
     void OnTriggerStay(Collider other)
     {
 		//Debug.Log("NEW PARENT");
-        if (other.gameObject.tag == "Walkable")
+        if (other.gameObject.tag == "Walkable" || other.gameObject.tag == "Start" || other.gameObject.tag == "Finish")
         {
             transform.SetParent(other.transform, true);
         }
@@ -43,7 +43,7 @@ public class Gravity : MonoBehaviour
 
     void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.tag == "Walkable")
+        if (other.gameObject.tag == "Walkable" || other.gameObject.tag == "Start" || other.gameObject.tag == "Finish")
         {
             transform.SetParent(null, true);
         }

@@ -21,18 +21,18 @@ public class element
 [Serializable]
 public class position
 {
-	public int x;
-	public int y;
-	public int z;
+	public float x;
+	public float y;
+	public float z;
 }
 
 [Serializable]
 public class rotation
 {
-	public int x;
-	public int y;
-	public int z;
-	public int w;
+	public float x;
+	public float y;
+	public float z;
+	public float w;
 }
 
 [Serializable]

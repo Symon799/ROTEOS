@@ -15,7 +15,6 @@ public class MeteoRequester : MonoBehaviour
     public IMeteoStatus meteoStatus;
     [Inject]
     private ILocationFinder _locationFinder;
-    [Inject]
     private WeatherType weatherType;
 
     public string apiKey;

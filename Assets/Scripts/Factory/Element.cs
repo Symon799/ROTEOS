@@ -23,8 +23,8 @@ public class Element
     public GameObject toInstantiate()
     {
         GameObject result = this.Basic;
-        result.transform.position = this.Position;
-        result.transform.rotation = this.Rotation;
+        //result.transform.position = this.Position;
+        //result.transform.rotation = this.Rotation;
         //result.transform.localScale = this.Scale;
         if (Scripts != null)
         {
