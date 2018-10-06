@@ -9,5 +9,9 @@ public interface IWebRequester {
 	
 	UnityWebRequest Post(string url, Dictionary<string,string> post);
 
+	IEnumerator PostComplete(string url, Dictionary<string, string> post);
+
+	IEnumerator PostComplete2(string url, string json);
+
 	IEnumerator WaitForRequest(UnityWebRequest www);
 }

@@ -23,9 +23,9 @@ public class CubePlacer : MonoBehaviour
     public Material transparentMaterial;
     private int currentId = 0;
 
-    // PRIVATE INJECT
-    [Inject]
-    private ISailsRequester _sailsRequester;
+    // public Requester
+    
+    public SailsRequester _sailsRequester;
 
 
      //SELECTION ----------------------------------------------------------SELECTION
@@ -730,7 +730,7 @@ public class CubePlacer : MonoBehaviour
         Debug.Log("Begining POST");
 
 
-        StartCoroutine(_sailsRequester.postJson(jsonFile));
+      _sailsRequester.postJson(jsonFile);
         
         Debug.Log("Ending POST");
        
