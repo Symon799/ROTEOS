@@ -50,6 +50,7 @@ public class WebRequester : IWebRequester
     public IEnumerator PostComplete2(string url, string json) {
          var request = new UnityWebRequest(url, "POST");
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+        
         request.uploadHandler = (UploadHandler) new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = (DownloadHandler) new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
@@ -57,6 +58,7 @@ public class WebRequester : IWebRequester
         yield return request.Send();
  
         Debug.Log("Status Code: " + request.responseCode);
+         Debug.Log("downloadHandler Text : " + request.downloadHandler.text);
     }
 
     public IEnumerator PostComplete(string url, Dictionary<string, string> post)
