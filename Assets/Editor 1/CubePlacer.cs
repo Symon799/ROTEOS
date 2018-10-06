@@ -730,7 +730,7 @@ public class CubePlacer : MonoBehaviour
         Debug.Log("Begining POST");
 
 
-        _sailsRequester.postJson(jsonFile);
+        StartCoroutine(_sailsRequester.postJson(jsonFile));
         
         Debug.Log("Ending POST");
        
