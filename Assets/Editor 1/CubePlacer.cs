@@ -668,8 +668,13 @@ public class CubePlacer : MonoBehaviour
         obj.layer = layer;
         Renderer renderer = obj.GetComponentInChildren<Renderer>();
         if (renderer)
-            renderer.material = transparentMaterial;
- 
+        {
+            Material[] mats = renderer.materials;
+            for (int i = 0; i < renderer.materials.Length; i++)
+                mats[i] = transparentMaterial;
+            renderer.materials = mats;
+        }
+
         foreach (Transform child in obj.transform) {
             SetTransparentRecursively(child.gameObject, layer);
         }
@@ -742,8 +747,8 @@ public class CubePlacer : MonoBehaviour
         groups.Clear();
 
         Destroy(currentSelection);
-        popUpGroup.SetActive(true);
-        addButton.SetActive(false);
+        popUpGroup.SetActive(false);
+        addButton.SetActive(true);
         updateOutline();
 
         //Load grid
@@ -765,6 +770,7 @@ public class CubePlacer : MonoBehaviour
             diff += new Vector3(diff.x >= 0 ? 0.01f : -0.01f, diff.y >= 0 ? 0.01f : -0.01f, diff.z >= 0 ? 0.01f : -0.01f);
             selectionBloc.transform.localScale = diff;
             selectionBloc.transform.position = new Vector3(pa2.x * 2 + ((pb2.x - pa2.x)) - 1, pa2.y * 2 + ((pb2.y - pa2.y)) - 1, pa2.z * 2 + (pb2.z - pa2.z) - 1);
+            
 
             //ADD GROUP
             GameObject current = Instantiate(selectionBloc);
@@ -789,6 +795,11 @@ public class CubePlacer : MonoBehaviour
 
             groupSelected = current.transform;
 
+            WAT
+            groupSelected.gameObject.AddComponent(typeof(cakeslice.Outline)).GetComponent<cakeslice.Outline>().color = 3;
+            groupSelected.gameObject.AddComponent(typeof(BoxCollider));
+            WAT
+            
             //Add group element
             Group newGrp = new Group();
             newGrp.gameObject = current;
