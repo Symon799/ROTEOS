@@ -327,7 +327,10 @@ public class CubePlacer : MonoBehaviour
             }
         }
         if (popUpGroup.activeSelf)
+        {
+            setPopUpValues();
             groupSelected.transform.Find("SelectionCube").gameObject.GetComponent<cakeslice.Outline>().enabled = true;
+        }
     }
 
     public void addGroup()
@@ -771,10 +774,11 @@ public class CubePlacer : MonoBehaviour
             selectionBloc.transform.localScale = diff;
             selectionBloc.transform.position = new Vector3(pa2.x * 2 + ((pb2.x - pa2.x)) - 1, pa2.y * 2 + ((pb2.y - pa2.y)) - 1, pa2.z * 2 + (pb2.z - pa2.z) - 1);
             
-
             //ADD GROUP
             GameObject current = Instantiate(selectionBloc);
             current.transform.parent = groupsObj.transform;
+            current.transform.Find("SelectionCube").gameObject.AddComponent(typeof(cakeslice.Outline)).GetComponent<cakeslice.Outline>().color = 3;
+            current.transform.Find("SelectionCube").gameObject.AddComponent(typeof(BoxCollider));
 
             pa2 = gr.pA;
             pb2 = gr.pB;
@@ -794,11 +798,6 @@ public class CubePlacer : MonoBehaviour
                             arr[x, y, z].transform.parent = current.transform;
 
             groupSelected = current.transform;
-
-            WAT
-            groupSelected.gameObject.AddComponent(typeof(cakeslice.Outline)).GetComponent<cakeslice.Outline>().color = 3;
-            groupSelected.gameObject.AddComponent(typeof(BoxCollider));
-            WAT
             
             //Add group element
             Group newGrp = new Group();
@@ -808,6 +807,7 @@ public class CubePlacer : MonoBehaviour
             newGrp.speed = gr.component.speed;
             newGrp.channel = gr.component.channel;
             groups.Add(newGrp);
+            updateOutline();
             setPopUpValues();
         }
 
