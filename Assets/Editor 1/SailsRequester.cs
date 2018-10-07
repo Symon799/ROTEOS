@@ -10,7 +10,7 @@ public class SailsRequester : MonoBehaviour
 {
 
 
-	 [Inject]
+	[Inject]
     private IWebRequester _webRequester;
 	
     [System.Serializable]
