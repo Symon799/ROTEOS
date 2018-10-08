@@ -11,6 +11,8 @@ public interface IPathfinder {
 
 	// Grid functions
 	void AddToGrid(Node toAdd);
+
+	void RemoveGrid(Node toRm);
 	List<Node> GetGrid();
 	List<Node> GetNeighbors(Node current, float distance);
 	Node NodeFromWorldPosition(Vector3 position);

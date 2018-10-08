@@ -31,6 +31,11 @@ public class Pathfinder : IPathfinder
         Grid.Add(toAdd);
     }
 
+    public void RemoveGrid(Node toRm)
+    {
+        Grid.Remove(toRm);
+    }
+
     public List<Node> GetGrid()
     {
         return Grid;
