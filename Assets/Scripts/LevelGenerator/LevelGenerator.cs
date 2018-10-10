@@ -56,7 +56,8 @@ public class LevelGenerator : MonoBehaviour
     {
         try
         {
-            string filePath = Path.Combine(Application.persistentDataPath, "Levels/" + levelName);
+            //string filePath = Path.Combine(Application.persistentDataPath, "Levels/" + levelName);
+            string filePath = Path.Combine(Application.dataPath, "Levels/level.json");
             Debug.Log(filePath);
             if (File.Exists(filePath))
             {
@@ -129,4 +130,5 @@ public class LevelGenerator : MonoBehaviour
     {
         return Objects[id];
     }
+
 }

@@ -13,6 +13,7 @@ public class CubePlacer : MonoBehaviour
     public GameObject selectionBloc;
     public int lenght = 40;
 
+
     //PRIVATE
     private Grid grid;
     private GameObject[,,] arr;
@@ -22,6 +23,11 @@ public class CubePlacer : MonoBehaviour
     public Material transparentMaterial;
     private int currentId = 0;
 
+     //PLLLAYMODE ---------------------------------------------------------- PLAYMODE
+
+    public GameObject playPrefab;
+
+
      //SELECTION ----------------------------------------------------------SELECTION
     
     public GameObject addButton;
@@ -30,6 +36,7 @@ public class CubePlacer : MonoBehaviour
     private InputField fieldSpeed, fieldX, fieldY, fieldZ;
     private bool selectionMode = false;
     private Vector3 pA = Vector3.zero, pB = Vector3.zero;
+    private GameObject levelObj;
     private GameObject groupsObj;
     private Transform groupSelected;
     private Transform ScriptDetails;
@@ -104,9 +111,14 @@ public class CubePlacer : MonoBehaviour
         grid = FindObjectOfType<Grid>();
         arr = new GameObject[lenght, lenght, lenght]; 
         idArr = new int[lenght, lenght, lenght];
+        levelObj = new GameObject();
         groupsObj = new GameObject();
+        groupsObj.transform.parent = levelObj.transform;
+        levelObj.transform.parent = GameObject.Find("Editor").transform;
+
         groups = new List<Group>();
         interactables = new List<Interactable>();
+        levelObj.name = "levelObj";
         groupsObj.name = "Groups";
 
         for (int x = 0; x < lenght; x++)
@@ -493,7 +505,10 @@ public class CubePlacer : MonoBehaviour
                     if (!groupSelected)
                     {
                         if (!currentSelection)
+                        {
                             currentSelection = Instantiate(selectionBloc, pA, Quaternion.identity);
+                            currentSelection.transform.parent = levelObj.transform;
+                        }
                         currentSelection.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
                         currentSelection.transform.position = pA * 2;
                     }
@@ -631,7 +646,7 @@ public class CubePlacer : MonoBehaviour
             return;
 
         arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z] = Instantiate(prefabs[currentId], finalPosition, Quaternion.identity);
-
+        arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z].transform.parent = levelObj.transform;
         //Applying rotation after instantiation
         arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z].transform.rotation = currentBloc.transform.rotation;
         
@@ -661,6 +676,7 @@ public class CubePlacer : MonoBehaviour
         if (!currentBloc)
         {
             currentBloc = Instantiate(prefabs[currentId], finalPosition, Quaternion.identity);
+            currentBloc.transform.parent = levelObj.transform;
             SetTransparentRecursively(currentBloc.transform.gameObject, 2);
         }
         currentBloc.transform.position = finalPosition;
@@ -759,6 +775,7 @@ public class CubePlacer : MonoBehaviour
         {
             int id = (int)elt.id;
             arr[(int)elt.position.x / 2, (int)elt.position.y / 2, (int)elt.position.z / 2] = Instantiate(prefabs[id], elt.position, elt.rotation);
+            arr[(int)elt.position.x / 2, (int)elt.position.y / 2, (int)elt.position.z / 2].transform.parent = levelObj.transform;
             idArr[(int)elt.position.x / 2, (int)elt.position.y / 2, (int)elt.position.z / 2] = id;
         }
 
@@ -819,5 +836,12 @@ public class CubePlacer : MonoBehaviour
             newInter.channel = i.channel;
             interactables.Add(newInter);
         }
+    }
+
+    public void LaunchPlayMode()
+    {
+        GameObject editorScene = GameObject.Find("Editor");
+        WriteJson();
+        Instantiate(playPrefab);
     }
 }

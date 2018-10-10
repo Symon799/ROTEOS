@@ -42,6 +42,8 @@ public class Node : MonoBehaviour, IHeapItem<Node> {
 		pathfinder.AddToGrid(this);
 	}
 
+
+
 	public int fCost {
 		get {
 			return gCost+hCost;

@@ -9,6 +9,7 @@ public class AgentScript : MonoBehaviour
 
     public GameObject prefabParticles;
     public GameObject waterParticles;
+    public Transform parent;
 
     private GameObject InstanceParticle = null;
     private Movement movement;
@@ -32,7 +33,8 @@ public class AgentScript : MonoBehaviour
                 if (hit.collider.CompareTag("Water"))
                 {
                     Vector3 partPos = new Vector3(hit.point.x, hit.point.y, hit.point.z);
-                    Instantiate(waterParticles, partPos, waterParticles.transform.rotation);
+                    GameObject water = Instantiate(waterParticles, partPos, waterParticles.transform.rotation);
+                    water.transform.parent = parent;
                 }
             }
         }
@@ -48,6 +50,7 @@ public class AgentScript : MonoBehaviour
         {
             Node tmp = movement.Route.LastOrDefault();
             InstanceParticle = Instantiate(prefabParticles, tmp.worldPosition, tmp.transform.localRotation);
+            InstanceParticle.transform.parent = parent;
         }
         else if (InstanceParticle != null && movement.CurrentNode == null && movement.Route.Count == 0)
         {
