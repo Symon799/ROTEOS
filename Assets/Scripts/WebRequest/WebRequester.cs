@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -17,11 +18,12 @@ public class WebRequester : IWebRequester
             {
                 count++;
                 finalUrl += arg.Key + '=' + arg.Value;
-                if (count != parameters.Count) {
+                if (count != parameters.Count)
+                {
                     finalUrl += '&';
                 }
             }
-            
+
         }
         Debug.Log("FINAL URL : " + finalUrl);
         UnityWebRequest request = UnityWebRequest.Get(finalUrl);
@@ -39,6 +41,63 @@ public class WebRequester : IWebRequester
         UnityWebRequest request = UnityWebRequest.Post(url, form);
         request.SendWebRequest();
         return request;
+    }
+
+    public IEnumerator PostComplete2(string url, string json)
+    {
+        var request = new UnityWebRequest(url, "POST");
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+
+        yield return request.Send();
+
+//        if (request.responseCode == 400)
+
+
+        Debug.Log("Status Code: " + request.responseCode);
+        Debug.Log("downloadHandler Text : " + request.downloadHandler.text);
+    }
+
+    public IEnumerator PostComplete(string url, Dictionary<string, string> post)
+    {
+        WWWForm form = new WWWForm();
+        /*foreach (KeyValuePair<string, string> arg in post)
+        {
+            Debug.Log(arg.Key + " " + arg.Value);
+            form.AddField(arg.Key, arg.Value);
+        }*/
+        //Debug.Log("Body : " + form);
+        form.AddField("userid", "20");
+        form.AddField("leveljson", "{}");
+        form.AddField("createdAt", "2018-10-05 22:00:00");
+        form.AddField("updatedAt", "2018-10-05 22:00:00");
+
+        /* 
+                www = UnityWebRequest.Put(url, bodyJSON);
+                www.method = "POST";
+        */
+        UnityWebRequest www = UnityWebRequest.Post(url, form);
+
+        www.SetRequestHeader("Accept", "text/json");
+        www.SetRequestHeader("Content-Type", "application/json");
+
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError)
+        {
+            Debug.Log(www.error);
+        }
+        else
+        {
+            Debug.Log("downloadHandler Text : " + www.downloadHandler.text);
+            Debug.Log("responseCode : " + www.responseCode);
+            Debug.Log("isDone : " + www.isDone);
+            Debug.Log("method : " + www.method);
+        }
+
     }
 
     public IEnumerator WaitForRequest(UnityWebRequest request)

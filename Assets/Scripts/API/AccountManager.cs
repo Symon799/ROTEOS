@@ -1,24 +1,56 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using Zenject;
 
-public class AccountManager : MonoBehaviour {
+public class AccountManager : MonoBehaviour
+{
 
-	public static string token = null;
+    [Inject]
+    private IWebRequester _webRequester;
 
-	public Input accountInput;
-	public Input passwordInput;
-	public GameObject loginMenu;
-	public GameObject mainMenu;
+    public static string token = null;
 
-	public void connexion()
-	{
-		bool success = true;
-		// Try connection
-		if (success)
-		{
-			loginMenu.SetActive(false);
-			mainMenu.SetActive(true);
-		}
-	}
+    public InputField accountInput;
+    public InputField passwordInput;
+    public GameObject loginMenu;
+    public GameObject mainMenu;
+
+
+    public void connexion()
+    {
+        bool success = true;
+        connectJson();
+    }
+
+    [System.Serializable]
+    public class user
+    {
+        public string username;
+        public string password;
+    }
+
+
+    public void connectJson()
+    {
+        Debug.Log("Welcome to connexion");
+        string sailsUrl = "https://secure-sands-20186.herokuapp.com/connexion";
+
+        user body = new user();
+        body.username = accountInput.text;
+        body.password = passwordInput.text;
+        string bodyJson = JsonUtility.ToJson(body);
+
+        StartCoroutine(_webRequester.PostComplete2(sailsUrl, bodyJson));
+
+        if (token != null)
+        {
+            loginMenu.SetActive(false);
+            mainMenu.SetActive(true);
+        }
+
+        Debug.Log("Bye Bye from postJson");
+    }
+
 }
