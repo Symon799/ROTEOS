@@ -12,10 +12,16 @@ public class MeteoStatus : IMeteoStatus
     private double _temperature;
     private WeatherType _weatherType;
 
+    private DateTime _sunrise;
+    private DateTime _sunset;
+
     public MeteoStatus() {
         _city = null;
         _temperature = 20;
         _weatherType = WeatherType.NO;
+        DateTime tmp = DateTime.Now;
+        _sunset = new DateTime(tmp.Year, tmp.Month, tmp.Day, 22, 0, 0);
+        _sunrise = new DateTime(tmp.Year, tmp.Month, tmp.Day, 6, 0, 0);
     }
 
     public string getCity()
@@ -29,6 +35,16 @@ public class MeteoStatus : IMeteoStatus
     public WeatherType getWeatherType()
     {
         return _weatherType;
+    }
+
+    public DateTime getSunset()
+    {
+        return _sunset;
+    }
+
+    public DateTime getSunrise()
+    {
+        return _sunrise;
     }
 
     public bool Init(string toParse)
@@ -75,4 +91,6 @@ public class MeteoStatus : IMeteoStatus
             "\nWeather Type : " + _weatherType;
         return res;
     }
+
+    
 }

@@ -11,6 +11,7 @@ public class LevelGenerator : MonoBehaviour
 
     public List<GameObject> Objects;
     public Transform parent;
+    public LightManager lightManager;
 
     [Inject]
     private DiContainer _diContainer;
@@ -18,14 +19,16 @@ public class LevelGenerator : MonoBehaviour
     // Update is called once per frame
     void Start()
     {
+    }
+
+    public void InitializeGame()
+    {
         InitializeLevel(ReadLevelJSON());
         SpawnCharacter();
-        Debug.Log(_diContainer);
     }
 
     public void instanciate(Element Element)
     {
-        Debug.Log(Element.Rotation);
         _diContainer.InstantiatePrefab(Element.toInstantiate(), Element.Position, Element.Rotation, parent);
     }
 
@@ -68,7 +71,7 @@ public class LevelGenerator : MonoBehaviour
                     Element elm = new Element(idToGameObject(element.id));
                     elm.Position = new Vector3(element.position.x, element.position.y, element.position.z);
                     elm.Rotation = new Quaternion(element.rotation.x, element.rotation.y, element.rotation.z, element.rotation.w);
-                    Debug.Log(elm.Rotation);
+                    //Debug.Log(elm.Rotation);
                     Elements.Add(elm);
                 }
                 return Elements;
@@ -101,14 +104,23 @@ public class LevelGenerator : MonoBehaviour
                 }
             }
             Debug.Log("Initialize level...");
+            float highestY = 0;
             foreach (var elm in elements)
             {
+                if (elm.Position.y > highestY)
+                    highestY = elm.Position.y;
                 instanciate(elm);
+            }
+            if (lightManager != null)
+            {
+                lightManager.SetDistance(highestY);
+                lightManager.setPlanetary();
             }
             return true;
         }
-        catch
+        catch (Exception e)
         {
+            Debug.LogError(e.ToString());
             return false;
         }
     }

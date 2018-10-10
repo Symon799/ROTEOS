@@ -50,7 +50,7 @@ public class AmbientSound : MonoBehaviour, IMeteoEffect
         {
             if (hasWater)
 			{
-				//waterFlow.UnPause();
+				waterFlow.UnPause();
 			}
         }
         if (status.getWeatherType() == WeatherType.SNOW)

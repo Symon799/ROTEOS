@@ -6,9 +6,10 @@ public class itemScore : MonoBehaviour {
 
 	public GameObject electricParticles;
 
-private GameObject scoreObject;
+	private GameObject scoreObject;
+	
 	void Start () {
-		scoreObject = GameObject.FindGameObjectWithTag("Score");
+		scoreObject = GameObject.FindGameObjectWithTag("GameManager");
 	}
 
 	void OnTriggerEnter(Collider other)

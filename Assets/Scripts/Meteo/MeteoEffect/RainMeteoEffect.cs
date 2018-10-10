@@ -12,7 +12,6 @@ public class RainMeteoEffect : MonoBehaviour, IMeteoEffect
 
     void Start()
     {
-        particles = this.gameObject.GetComponent<ParticleSystem>();
     }
 
     void OnEnable()
@@ -39,14 +38,31 @@ public class RainMeteoEffect : MonoBehaviour, IMeteoEffect
         switch (status.getWeatherType())
         {
             case WeatherType.SNOW:
-                particles.Stop();
+                CloudDisappear();
                 break;
             case WeatherType.RAIN:
-                particles.Play();
+                CloudAppear();
                 break;
             default:
-                particles.Stop();
+                CloudDisappear();
                 break;
         }
     }
+
+    private void CloudDisappear()
+    {
+        foreach (Transform child in transform)
+        {
+            child.gameObject.SetActive(false);
+        }
+    }
+
+    private void CloudAppear()
+    {
+        foreach (Transform child in transform)
+        {
+            child.gameObject.SetActive(true);
+        }
+    }
+    
 }

@@ -11,6 +11,8 @@ public class DebugMeteoStatus : IMeteoStatus
     public string _city;
     public double _temperature;
     public WeatherType _weatherType;
+    public DateTime _sunrise;
+    public DateTime _sunset;
 
     public DebugMeteoStatus() {
         _city = null;
@@ -29,6 +31,16 @@ public class DebugMeteoStatus : IMeteoStatus
     public WeatherType getWeatherType()
     {
         return _weatherType;
+    }
+
+    public DateTime getSunset()
+    {
+        return _sunset;
+    }
+
+    public DateTime getSunrise()
+    {
+        return _sunrise;
     }
 
     public bool Init(string toParse)

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,5 +15,8 @@ public interface IMeteoStatus {
     string getCity();
     double getTemperature();
     WeatherType getWeatherType();
+
+    DateTime getSunset();
+    DateTime getSunrise();
 	
 }
