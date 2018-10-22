@@ -17,11 +17,19 @@ public class AccountManager : MonoBehaviour
     public GameObject loginMenu;
     public GameObject mainMenu;
 
+    void Start()
+    {
+        if (token != null)
+        {
+            loginMenu.SetActive(false);
+            mainMenu.SetActive(true);
+        }
+    }
 
     public void connexion()
     {
         bool success = true;
-        connectJson();
+        StartCoroutine(connectJson());
     }
 
     [System.Serializable]
@@ -32,7 +40,7 @@ public class AccountManager : MonoBehaviour
     }
 
 
-    public void connectJson()
+    public IEnumerator connectJson()
     {
         Debug.Log("Welcome to connexion");
         string sailsUrl = "https://secure-sands-20186.herokuapp.com/connexion";
@@ -42,7 +50,7 @@ public class AccountManager : MonoBehaviour
         body.password = passwordInput.text;
         string bodyJson = JsonUtility.ToJson(body);
 
-        StartCoroutine(_webRequester.PostComplete2(sailsUrl, bodyJson));
+        yield return StartCoroutine(_webRequester.PostComplete2(sailsUrl, bodyJson));
 
         if (token != null)
         {
@@ -52,5 +60,13 @@ public class AccountManager : MonoBehaviour
 
         Debug.Log("Bye Bye from postJson");
     }
+
+}
+
+public class ConnectionRequest
+{
+    public string token;
+    public bool status;
+    public string error;
 
 }

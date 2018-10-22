@@ -6,6 +6,13 @@ using UnityEngine.Networking;
 
 public class WebRequester : IWebRequester
 {
+    public class ConnectionRequest
+    {
+        public string token;
+        public bool status;
+        public string error;
+
+    }
 
     public UnityWebRequest Get(string url, Dictionary<string, string> parameters)
     {
@@ -54,7 +61,11 @@ public class WebRequester : IWebRequester
 
         yield return request.Send();
 
-//        if (request.responseCode == 400)
+        if (request.responseCode == 200)
+        {
+            ConnectionRequest example = JsonUtility.FromJson<ConnectionRequest>(request.downloadHandler.text);
+            AccountManager.token = example.token;
+        }
 
 
         Debug.Log("Status Code: " + request.responseCode);

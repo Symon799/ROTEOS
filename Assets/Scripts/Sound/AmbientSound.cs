@@ -65,7 +65,7 @@ public class AmbientSound : MonoBehaviour, IMeteoEffect
         {
             if (hasWater)
 			{
-				waterFlow.UnPause();
+				waterFlow.Pause();
 			}
         }
         else if (status.getTemperature() > 25.5)

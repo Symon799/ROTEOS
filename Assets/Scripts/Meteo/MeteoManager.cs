@@ -6,14 +6,15 @@ using Zenject;
 public class MeteoManager : IMeteoManager {
 
 	[Inject]
-	private IMeteoStatus _meteoStatus;
+	public IMeteoStatus _meteoStatus;
 
 	private List<IMeteoEffect> _meteoEffects;
 
     public void applyMeteo()
     {
+		Debug.Log(_meteoStatus.ToString());
         foreach(var effect in this._meteoEffects) {
-			effect.meteoChange(meteoStatus);
+			effect.meteoChange(_meteoStatus);
 		}
     }
 

@@ -25,7 +25,7 @@ public class RainMeteoEffect : MonoBehaviour, IMeteoEffect
     }
 
     public void meteoChange(IMeteoStatus status)
-    {
+    {   CloudDisappear();
         if (status.getTemperature() < 10.0)
         {
         }
