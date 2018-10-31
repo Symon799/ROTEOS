@@ -11,6 +11,7 @@ public class AccountManager : MonoBehaviour
     private IWebRequester _webRequester;
 
     public static string token = null;
+    public static long idCurrentUser = 0;
 
     public InputField accountInput;
     public InputField passwordInput;
@@ -50,7 +51,7 @@ public class AccountManager : MonoBehaviour
         body.password = passwordInput.text;
         string bodyJson = JsonUtility.ToJson(body);
 
-        yield return StartCoroutine(_webRequester.PostComplete2(sailsUrl, bodyJson));
+        yield return StartCoroutine(_webRequester.PostCompleteConnection(sailsUrl, bodyJson));
 
         if (token != null)
         {
