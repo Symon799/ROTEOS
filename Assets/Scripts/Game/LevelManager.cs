@@ -14,6 +14,8 @@ public class LevelManager : MonoBehaviour
     public GameObject ScoreUI;
     public TextMeshProUGUI scoreText;
 
+    public bool editorMode = false;
+
     // SCORE VARIABLES
     private int nbScore = 0;
     private int nbScoreObject;
@@ -25,10 +27,20 @@ public class LevelManager : MonoBehaviour
 
 
     // Use this for initialization
-    void Start()
+
+    void Start() {
+        if (!editorMode)
+            StartLevel();
+    }
+
+    public void StartLevel()
     {
+        //In case of an error here, put the tag "Managers" on the gameObject containing all of the managers
+        GameObject.FindGameObjectWithTag("Managers").GetComponentInChildren<PathRequestManager>().resetPathfinder();
+
         InitializeLevel();
         _meteoManager.applyMeteo();
+
     }
 
     void InitializeLevel()

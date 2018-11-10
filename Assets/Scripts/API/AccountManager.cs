@@ -43,7 +43,6 @@ public class AccountManager : MonoBehaviour
 
     public IEnumerator connectJson()
     {
-        Debug.Log("Welcome to connexion");
         string sailsUrl = "https://secure-sands-20186.herokuapp.com/connexion";
 
         user body = new user();
@@ -58,8 +57,6 @@ public class AccountManager : MonoBehaviour
             loginMenu.SetActive(false);
             mainMenu.SetActive(true);
         }
-
-        Debug.Log("Bye Bye from postJson");
     }
 
 }

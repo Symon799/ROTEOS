@@ -145,7 +145,7 @@ public class Movement : MonoBehaviour
         }
         if (Mathf.Abs(angle) > 45f)
             characterRigidbody.velocity = characterRigidbody.velocity / 100;
-        Debug.Log("SIGN : " + angle);
+        //Debug.Log("SIGN : " + angle);
         if (Mathf.Sign(angle) == -1)
         {
             //Debug.Log("RIGHT");

@@ -38,7 +38,7 @@ public class PlayStepSound : MonoBehaviour, IMeteoEffect
     {
         try
         {
-            Debug.Log("Playing Cube Sound...");
+            //Debug.Log("Playing Cube Sound...");
             _footSoundSource.PlayOneShot(currentStep);
         }
         catch (Exception e)

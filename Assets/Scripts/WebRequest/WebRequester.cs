@@ -42,7 +42,7 @@ public class WebRequester : IWebRequester
             }
 
         }
-        Debug.Log("FINAL URL : " + finalUrl);
+        //Debug.Log("FINAL URL : " + finalUrl);
         UnityWebRequest request = UnityWebRequest.Get(finalUrl);
         request.SendWebRequest();
         return request;
@@ -88,10 +88,7 @@ public class WebRequester : IWebRequester
             AccountManager.token = resultObj.token;
             AccountManager.idCurrentUser = Convert.ToInt64(resultObj.id);
         }
-
-
-        Debug.Log("Status Code: " + request.responseCode);
-        Debug.Log("downloadHandler Text : " + request.downloadHandler.text);
+        Debug.Log(request.responseCode + " DownloadHandler Text : " + request.downloadHandler.text);
     }
 
     public IEnumerator PostComplete(string url, string json)

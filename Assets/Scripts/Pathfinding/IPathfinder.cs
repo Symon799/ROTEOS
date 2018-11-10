@@ -16,6 +16,7 @@ public interface IPathfinder {
 	List<Node> GetGrid();
 	List<Node> GetNeighbors(Node current, float distance);
 	Node NodeFromWorldPosition(Vector3 position);
+	void resetGrid();
 }
 
 

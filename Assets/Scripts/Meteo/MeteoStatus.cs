@@ -16,7 +16,6 @@ public class MeteoStatus : IMeteoStatus
     private DateTime _sunset;
 
     public MeteoStatus() {
-        Debug.Log("Meteo Status...");
         _city = null;
         _temperature = 20;
         _weatherType = WeatherType.NO;

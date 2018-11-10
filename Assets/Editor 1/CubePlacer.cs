@@ -31,8 +31,7 @@ public class CubePlacer : MonoBehaviour
 
      //PLLLAYMODE ---------------------------------------------------------- PLAYMODE
 
-    public GameObject playPrefab;
-
+    public GameObject playMode;
 
      //SELECTION ----------------------------------------------------------SELECTION
     
@@ -815,12 +814,15 @@ public class CubePlacer : MonoBehaviour
     public void LaunchPlayMode()
     {
         WriteJson();
-        Instantiate(playPrefab);
+        editor.SetActive(false);
+        playMode.SetActive(true);
+        //Destroy(GameObject.FindGameObjectWithTag("Player"));
     }
 
     public void returnToMenu()
     {
         menuEditor.SetActive(true);
 		editor.SetActive(false);
+        //Destroy(GameObject.FindGameObjectWithTag("Player"));
     }
 }
