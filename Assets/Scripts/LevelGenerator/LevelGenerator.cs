@@ -14,13 +14,11 @@ public class LevelGenerator : MonoBehaviour
     public Transform parent;
     public LightManager lightManager;
 
+    public GameObject playerPrefab;
+
     [Inject]
     private DiContainer _diContainer;
 
-    // Update is called once per frame
-    void Start()
-    {
-    }
 
     public void InitializeGame()
     {
@@ -43,7 +41,7 @@ public class LevelGenerator : MonoBehaviour
         try
         {
             GameObject start = GameObject.FindGameObjectWithTag("Start");
-            GameObject character = GameObject.FindGameObjectWithTag("Player");
+            GameObject character = GameObject.Instantiate(playerPrefab);
             Vector3 position = new Vector3(0, 3, 0) + start.transform.position;
             character.transform.position = position;
         }
@@ -65,9 +63,9 @@ public class LevelGenerator : MonoBehaviour
                 string dataAsJson = File.ReadAllText(filePath);
                 JsonLevel loadedData = JsonUtility.FromJson<JsonLevel>(dataAsJson);
 
-                Debug.Log(dataAsJson);
+                //Debug.Log(dataAsJson);
                 List<Element> Elements = new List<Element>();
-                Debug.Log(JsonUtility.ToJson(loadedData));
+                //Debug.Log(JsonUtility.ToJson(loadedData));
                 foreach (var element in loadedData.elements)
                 {
                     Element elm = new Element(idToGameObject(element.id));
@@ -90,7 +88,6 @@ public class LevelGenerator : MonoBehaviour
             return null;
         }
 
-
         return null;
     }
 
@@ -99,12 +96,9 @@ public class LevelGenerator : MonoBehaviour
         try
         {
             if (parent != null)
-            {
                 foreach (Transform child in parent)
-                {
                     GameObject.Destroy(child.gameObject);
-                }
-            }
+
             Debug.Log("Initialize level...");
             float highestY = 0;
             foreach (var elm in elements)
@@ -125,6 +119,7 @@ public class LevelGenerator : MonoBehaviour
             Debug.LogError(e.ToString());
             return false;
         }
+        
     }
 
     public bool InitializeLevelEditor(List<Element> elements)

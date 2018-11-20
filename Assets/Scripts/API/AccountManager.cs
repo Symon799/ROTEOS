@@ -14,6 +14,7 @@ public class AccountManager : MonoBehaviour
     private IWebRequester _webRequester;
 
     public static string token = null;
+    public static long idCurrentUser = 0;
 
     public InputField accountInput;
     public InputField passwordInput;
@@ -48,7 +49,6 @@ public class AccountManager : MonoBehaviour
 
     public IEnumerator connectJson()
     {
-        Debug.Log("Welcome to connexion");
         string sailsUrl = "https://secure-sands-20186.herokuapp.com/connexion";
 
         user body = new user();
@@ -56,7 +56,7 @@ public class AccountManager : MonoBehaviour
         body.password = passwordInput.text;
         string bodyJson = JsonUtility.ToJson(body);
 
-        yield return StartCoroutine(_webRequester.PostComplete2(sailsUrl, bodyJson));
+        yield return StartCoroutine(_webRequester.PostCompleteConnection(sailsUrl, bodyJson));
 
         if (token != null)
         {
@@ -64,8 +64,6 @@ public class AccountManager : MonoBehaviour
             mainMenu.SetActive(true);
             StartCoroutine(updateLevels());
         }
-
-        Debug.Log("Bye Bye from postJson");
     }
 
     public IEnumerator updateLevels()

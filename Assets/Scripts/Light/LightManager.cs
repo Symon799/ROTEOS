@@ -29,7 +29,7 @@ public class LightManager : MonoBehaviour {
 	public void setPlanetary()
 	{
 		_astral.transform.rotation = Quaternion.Euler(getAngle(), 0, 0);
-		Debug.Log(getAngle());
+		//Debug.Log(getAngle());
 		if (currentTime >= _meteoStatus.getSunrise() && currentTime <= _meteoStatus.getSunset())
 			_moon.SetActive(false);
 		else

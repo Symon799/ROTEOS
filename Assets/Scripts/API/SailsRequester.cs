@@ -44,7 +44,7 @@ public class SailsRequester : MonoBehaviour
 
 
         //StartCoroutine(_webRequester.PostComplete(sailsUrl, parameters));
-        StartCoroutine(_webRequester.PostComplete2(sailsUrl, bodyJson));
+        StartCoroutine(_webRequester.PostCompleteConnection(sailsUrl, bodyJson));
         
        /*  UnityWebRequest resultRequest = _webRequester.Post(sailsUrl, parameters);
         yield return new WaitUntil(() => resultRequest.isDone);

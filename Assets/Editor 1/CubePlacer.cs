@@ -6,12 +6,18 @@ using System.IO;
 using UnityEngine.UI;
 using System.Linq;
 
+
 public class CubePlacer : MonoBehaviour
 {
     //PUBLIC
     public GameObject[] prefabs;
     public GameObject selectionBloc;
     public int lenght = 40;
+
+    public Level currentLevel;
+    public GameObject menuEditor;
+	public GameObject editor;
+
 
 
     //PRIVATE
@@ -25,8 +31,7 @@ public class CubePlacer : MonoBehaviour
 
      //PLLLAYMODE ---------------------------------------------------------- PLAYMODE
 
-    public GameObject playPrefab;
-
+    public GameObject playMode;
 
      //SELECTION ----------------------------------------------------------SELECTION
     
@@ -65,45 +70,7 @@ public class CubePlacer : MonoBehaviour
     private ElementCollection eltCollection;
     private string levelName = "/Levels/level.json";
 
-    [System.Serializable]
-    public class ElementJson
-    {
-        public long id;
-        public Vector3 position;
-        public Quaternion rotation;
-    }
-
-    [System.Serializable]
-    public class ElementCollection
-    {
-        public List<ElementJson> elements;
-        public List<GroupJson> groups;
-        public List<InteractableJson> interactables;
-    }
-
-    [System.Serializable]
-    public class GroupJson
-    {
-        public Vector3 pA;
-        public Vector3 pB;
-        public ComponentJson component;
-    }
-
-    [System.Serializable]
-    public class InteractableJson
-    {
-        public Vector3 pos;
-        public int channel;
-    }
-
-    [System.Serializable]
-    public class ComponentJson
-    {
-        public int id;
-        public Vector3 position;
-        public float speed;
-        public int channel;
-    }
+    
     //------------------------------------------------------------------
 
     private void Awake()
@@ -748,8 +715,13 @@ public class CubePlacer : MonoBehaviour
 
     public void LoadJson()
     {
-        string content = File.ReadAllText(Application.dataPath + levelName);
-        eltCollection = JsonUtility.FromJson<ElementCollection>(content);
+        //string content = File.ReadAllText(Application.dataPath + levelName);
+        //eltCollection = JsonUtility.FromJson<ElementCollection>(content);
+
+        eltCollection = currentLevel.jsonlevel;
+
+        //create the file for playMode to use
+        File.WriteAllText(Application.dataPath + levelName, JsonUtility.ToJson(eltCollection));
 
         for (int x = 0; x < lenght; x++)
             for (int y = 0; y < lenght; y++)
@@ -767,7 +739,8 @@ public class CubePlacer : MonoBehaviour
 
         Destroy(currentSelection);
         popUpGroup.SetActive(false);
-        addButton.SetActive(true);
+        addButton.SetActive(false);
+    
         updateOutline();
 
         //Load grid
@@ -840,8 +813,16 @@ public class CubePlacer : MonoBehaviour
 
     public void LaunchPlayMode()
     {
-        GameObject editorScene = GameObject.Find("Editor");
         WriteJson();
-        Instantiate(playPrefab);
+        editor.SetActive(false);
+        playMode.SetActive(true);
+        //Destroy(GameObject.FindGameObjectWithTag("Player"));
+    }
+
+    public void returnToMenu()
+    {
+        menuEditor.SetActive(true);
+		editor.SetActive(false);
+        //Destroy(GameObject.FindGameObjectWithTag("Player"));
     }
 }

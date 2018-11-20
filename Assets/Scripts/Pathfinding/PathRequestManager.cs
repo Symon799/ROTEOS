@@ -20,8 +20,7 @@ public class PathRequestManager : MonoBehaviour
 
     void Start()
     {
-        characterGround = GameObject.FindGameObjectWithTag("Player").GetComponent<Gravity>();
-        characterMovement = GameObject.FindGameObjectWithTag("Player").GetComponent<Movement>();
+
     }
 
     void Update()
@@ -36,6 +35,7 @@ public class PathRequestManager : MonoBehaviour
     public void testPathfinding()
     {
         Debug.Log("testPathfinding");
+        characterGround = GameObject.FindGameObjectWithTag("Player").GetComponent<Gravity>();
         RequestPath(characterGround.GetBotPosition(), to, testAction);
     }
 
@@ -110,6 +110,12 @@ public class PathRequestManager : MonoBehaviour
     public bool Pathfinder()
     {
         return _pathfinder != null;
+    }
+
+    public void resetPathfinder()
+    {
+        _pathfinder.resetGrid();
+        lastWaypoints = null;
     }
 
     void OnDrawGizmos()

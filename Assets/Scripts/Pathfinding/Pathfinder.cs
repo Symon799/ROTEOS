@@ -59,7 +59,7 @@ public class Pathfinder : IPathfinder
 
             while (openSet.Count > 0)
             {
-                Debug.Log(openSet.Count);
+                //Debug.Log(openSet.Count);
                 Node currentNode = openSet.RemoveFirst();
 
                 closedSet.Add(currentNode);
@@ -179,5 +179,11 @@ public class Pathfinder : IPathfinder
             }
         }
         return nearest;
+    }
+
+    public void resetGrid()
+    {
+        if (_grid != null)
+            _grid.Clear();
     }
 }
