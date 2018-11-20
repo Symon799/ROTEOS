@@ -6,7 +6,7 @@ using UnityEngine;
 [Serializable]
 public class MetaData
 {
-	public List<world> worlds;
+	public List<level> levels;
 
 }
 
@@ -21,7 +21,8 @@ public class world
 [Serializable]
 public class level
 {
-	public string id;
+	public long id;
+	public string name;
 	public bool rain;
 	public bool hot;
 	public bool cold;

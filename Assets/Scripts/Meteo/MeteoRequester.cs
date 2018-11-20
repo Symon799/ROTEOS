@@ -29,7 +29,7 @@ public class MeteoRequester : MonoBehaviour
 
     private IEnumerator getMeteo() {
         Dictionary<string, string> parameters = new Dictionary<string, string>();
-
+        Debug.Log(_locationFinder);
         StartCoroutine(_locationFinder.Refresh(locationMaxTime));
         yield return new WaitUntil(() => _locationFinder.getLastStatus() != LocationFinderStatus.ONGOING);
 

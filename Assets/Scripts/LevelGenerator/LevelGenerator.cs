@@ -8,6 +8,7 @@ using Zenject;
 public class LevelGenerator : MonoBehaviour
 {
     public static string levelName;
+    public static long levelId;
 
     public List<GameObject> Objects;
     public Transform parent;
@@ -34,7 +35,7 @@ public class LevelGenerator : MonoBehaviour
 
     public void instanciate(GameObject GameObject)
     {
-        _diContainer.InstantiatePrefab(GameObject, GameObject.transform.position, GameObject.transform.rotation, parent);
+        _diContainer.InstantiatePrefab(GameObject, GameObject.transform.localPosition, GameObject.transform.rotation, parent);
     }
 
     public void SpawnCharacter()
@@ -56,8 +57,8 @@ public class LevelGenerator : MonoBehaviour
     {
         try
         {
-            //string filePath = Path.Combine(Application.persistentDataPath, "Levels/" + levelName);
-            string filePath = Path.Combine(Application.dataPath, "Levels/level.json");
+            string filePath = Path.Combine(Application.persistentDataPath, "Levels/" + levelName);
+            //string filePath = Path.Combine(Application.dataPath, "Levels/level.json");
             Debug.Log(filePath);
             if (File.Exists(filePath))
             {
@@ -116,6 +117,35 @@ public class LevelGenerator : MonoBehaviour
             {
                 lightManager.SetDistance(highestY);
                 lightManager.setPlanetary();
+            }
+            return true;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e.ToString());
+            return false;
+        }
+    }
+
+    public bool InitializeLevelEditor(List<Element> elements)
+    {
+        try
+        {
+            if (parent != null)
+            {
+                foreach (Transform child in parent)
+                {
+                    GameObject.Destroy(child.gameObject);
+                }
+            }
+            Debug.Log("Initialize level...");
+            foreach (var elm in elements)
+            {
+               Debug.Log(elm.toInstantiate().transform.localScale);
+               var obj = elm.toInstantiate();
+               obj.transform.localScale = new Vector3(1, 1 ,1);
+                var tmp = GameObject.Instantiate(obj);
+                tmp.transform.SetParent(parent, false);
             }
             return true;
         }
