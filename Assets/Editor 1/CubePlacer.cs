@@ -68,7 +68,7 @@ public class CubePlacer : MonoBehaviour
 
     //JSON ----------------------------------------------------------JSON
     private ElementCollection eltCollection;
-    private string levelName = "/Levels/level.json";
+    private string levelName = "/level.json";
 
     
     //------------------------------------------------------------------
@@ -128,6 +128,7 @@ public class CubePlacer : MonoBehaviour
         dropButtonChannel.gameObject.transform.parent.gameObject.SetActive(false);
         ScriptDetails = popUpGroup.transform.Find("ScriptDetails");
         updateOutline();
+        updateMeshRenderer();
     }
 
     public void setBloc(int id)
@@ -632,7 +633,7 @@ public class CubePlacer : MonoBehaviour
 
     private bool isInGrid(int x, int y,int z)
     {
-        if ((x < 0 || y < 0 || z < 0) || (x > 19 || y > 19 || z > 19))
+        if (x < 0 || y < 0 || z < 0 || x > 19 || y > 19 || z > 19)
             return false;
         return true;
     }
@@ -682,7 +683,7 @@ public class CubePlacer : MonoBehaviour
         Vector3 gridPosition = finalPosition / 2;
         
         if (!isInGrid((int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.y)
-            || arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z])
+            && arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z])
         {
             currentBloc.SetActive(false);
             return;
@@ -759,7 +760,8 @@ public class CubePlacer : MonoBehaviour
         }
 
         string jsonFile = JsonUtility.ToJson(eltCollection);
-        File.WriteAllText(Application.dataPath + levelName, jsonFile);
+        File.WriteAllText(Application.persistentDataPath + "/Levels/" + levelName, jsonFile);
+        LevelGenerator.levelName = levelName;
     }
 
     public void LoadJson()
@@ -791,8 +793,7 @@ public class CubePlacer : MonoBehaviour
         eltCollection = currentLevel.jsonlevel;
 
         //create the file for playMode to use
-        File.WriteAllText(Application.dataPath + levelName, JsonUtility.ToJson(eltCollection));
-
+        File.WriteAllText(Application.persistentDataPath + "/Levels/" + levelName, JsonUtility.ToJson(eltCollection));
 
         
     
@@ -853,6 +854,7 @@ public class CubePlacer : MonoBehaviour
             newGrp.channel = gr.component.channel;
             groups.Add(newGrp);
             updateOutline();
+            updateMeshRenderer();
             setPopUpValues();
         }
 
@@ -869,6 +871,8 @@ public class CubePlacer : MonoBehaviour
     public void LaunchPlayMode()
     {
         WriteJson();
+        groupSelected = null;
+        updateOutline();
         GameObject.FindGameObjectWithTag("Managers").GetComponentInChildren<MenuEdManager>().setLevelToSave(currentLevel);
         editor.SetActive(false);
         playMode.SetActive(true);
