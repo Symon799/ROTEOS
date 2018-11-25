@@ -22,3 +22,21 @@ public class Levels {
 
 	public List<Level> all;
 }
+
+[System.Serializable]
+public class LevelForEd {
+		
+	public int idlevel;
+	public string namelevel;
+	public ElementCollection jsonlevel;
+	public string descriptionlevel;
+	public string weather_saviorlevel;
+	public int maxscorelevel;
+
+}
+
+[System.Serializable]
+public class LevelsForEd
+{
+	public List<LevelForEd> levels;
+}

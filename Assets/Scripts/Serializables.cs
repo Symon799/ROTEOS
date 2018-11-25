@@ -41,7 +41,7 @@ public class ComponentJson
 	public float speed;
 	public int channel;
 }
-
+/*
 [System.Serializable]
 public class Level {
 		
@@ -59,6 +59,7 @@ public class Levels
 {
 	public List<Level> levels;
 }
+*/
 
 [System.Serializable]
 public class AddLevel

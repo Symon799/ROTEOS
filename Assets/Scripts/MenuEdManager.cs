@@ -9,14 +9,14 @@ public class MenuEdManager : MonoBehaviour {
 
     [Inject]
 	private IWebRequester _webRequester;
-    private Levels levelsObj;
+    private LevelsForEd levelsObj;
     private bool initialized = false;
 
     public Transform grid;
     public GameObject levelButtonGroup;
     public GameObject menuEditor;
 	public GameObject editor;
-    private Level levelToSave = null;
+    private LevelForEd levelToSave = null;
 
     // Save Tab
     public InputField nameField;
@@ -53,9 +53,9 @@ public class MenuEdManager : MonoBehaviour {
         yield return new WaitUntil(() => resultRequest.isDone);
         Debug.Log(resultRequest.responseCode + " Result : " + resultRequest.downloadHandler.text);
 
-        levelsObj = JsonUtility.FromJson<Levels>("{\"levels\":" + resultRequest.downloadHandler.text + "}");
+        levelsObj = JsonUtility.FromJson<LevelsForEd>("{\"levels\":" + resultRequest.downloadHandler.text + "}");
 
-        foreach(Level lvl in levelsObj.levels)
+        foreach(LevelForEd lvl in levelsObj.levels)
         {
             GameObject button = Instantiate(levelButtonGroup, grid);
             button.GetComponent<ButtonUpdater>().setValues(lvl, menuEditor, editor);
@@ -148,7 +148,7 @@ public class MenuEdManager : MonoBehaviour {
 
         string levelJsonStr = File.ReadAllText(filePath);
         if (levelToSave == null)
-            levelToSave = new Level();
+            levelToSave = new LevelForEd();
         else
             StartCoroutine(deleteLevel(levelToSave.idlevel));
 
@@ -177,7 +177,7 @@ public class MenuEdManager : MonoBehaviour {
 		editor.GetComponentInChildren<CubePlacer>().LoadJson();
     }
 
-    public void setLevelToSave(Level save)
+    public void setLevelToSave(LevelForEd save)
     {
         levelToSave = save;
     }

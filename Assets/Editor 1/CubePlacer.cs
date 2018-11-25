@@ -13,7 +13,7 @@ public class CubePlacer : MonoBehaviour
     public GameObject[] prefabs;
     public GameObject selectionBloc;
     public int lenght = 40;
-    public Level currentLevel;
+    public LevelForEd currentLevel;
     public GameObject menuEditor;
 	public GameObject editor;
     public Material lineMaterial;
