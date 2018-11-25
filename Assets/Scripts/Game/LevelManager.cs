@@ -43,6 +43,15 @@ public class LevelManager : MonoBehaviour
 
     }
 
+    public void resetLevel()
+    {
+        hasWon = false;
+        LevelEndingInterface.SetActive(false);
+        ScoreUI.SetActive(true);
+        nbScore = 0;
+        GameObject.FindGameObjectWithTag("Managers").GetComponentInChildren<PathRequestManager>().resetPathfinder();
+    }
+
     void InitializeLevel()
     {
         nbScore = 0;
