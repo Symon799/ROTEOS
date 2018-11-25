@@ -3,11 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Zenject;
 
 public class MenuManager : MonoBehaviour
 {
+    [Inject]
+    private IWebRequester _webRequester;
     public GameObject worldButton;
     public GameObject levelButton;
 
@@ -19,14 +23,21 @@ public class MenuManager : MonoBehaviour
     public GameObject levelsMenu;
 
     public LevelGenerator levelGenerator;
+    public Text timeText;
+    public Text pointText;
 
     MetaData levelMetaData;
+
 
     // Use this for initialization
     void Start()
     {
+    }
+
+    public void StartMenu()
+    {
         LoadMetaData();
-        LoadAllWorlds();
+        LoadLevels();
     }
 
     public void LoadMetaData()
@@ -51,42 +62,15 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-    public void LoadAllWorlds()
+    public void LoadLevels()
     {
         try
         {
             if (levelMetaData == null)
                 throw new Exception();
-            foreach (var world in levelMetaData.worlds)
-            {
-                GameObject tmp = worldButton;
-                var button = tmp.transform.GetComponent<Button>();
-                tmp.transform.localScale = new Vector3(2, 2, 2);
-                var instantiatedButton = Instantiate(tmp, allWorldMenu.transform.position, tmp.transform.rotation, allWorldMenu.transform);
-                instantiatedButton.GetComponent<Button>().onClick.AddListener(() => SelectWorld.SetActive(false));
-                instantiatedButton.GetComponent<Button>().onClick.AddListener(() => SelectLevel.SetActive(true));
-                instantiatedButton.GetComponent<Button>().onClick.AddListener(() => LoadWorldLevels(world.id));
-                instantiatedButton.GetComponentInChildren<Text>().text = world.name;
-            }
-
-        }
-        catch (Exception e)
-        {
-            Debug.LogException(e, this);
-            Debug.Log("Can't find files");
-        }
-    }
-
-    public void LoadWorldLevels(int id)
-    {
-        try
-        {
-            if (levelMetaData == null)
-                throw new Exception();
-            world wrld = levelMetaData.worlds.Find(w => w.id == id);
             foreach (Transform child in worldMenu.transform)
                 GameObject.Destroy(child.gameObject);
-            foreach (var level in wrld.levels)
+            foreach (var level in levelMetaData.levels)
             {
                 GameObject tmp = levelButton;
                 var button = tmp.transform.GetComponent<Button>();
@@ -94,13 +78,14 @@ public class MenuManager : MonoBehaviour
                 var instantiatedButton = Instantiate(tmp, worldMenu.transform.position, tmp.transform.rotation, worldMenu.transform);
                 instantiatedButton.GetComponent<Button>().onClick.AddListener(delegate { SelectLevel.SetActive(false); });
                 instantiatedButton.GetComponent<Button>().onClick.AddListener(delegate { LevelInfos.SetActive(true); });
-                instantiatedButton.GetComponent<Button>().onClick.AddListener(delegate { LoadLevel(level.id); });
+                instantiatedButton.GetComponent<Button>().onClick.AddListener(delegate { LoadLevel(level.name.ToString(), level.id); });
                 IconActivator icons = instantiatedButton.GetComponent<IconActivator>();
                 if (level.cold)
                     icons.snow = true;
                 if (level.rain)
                     icons.rain = true;
             }
+
 
         }
         catch (Exception e)
@@ -110,14 +95,34 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-    public void LoadLevel(string id)
+    private string GetTimeScore(long elapsed_time)
     {
-        LevelGenerator.levelName = id;
+        int min = (int)(elapsed_time / 60);
+        int sec = (int)(elapsed_time % 60);
+        return (min + "m" + sec + "s");
+    }
+
+    public void LoadLevel(string name, long id)
+    {
+        LevelGenerator.levelName = name;
+        LevelGenerator.levelId = id;
         try
         {
             if (levelMetaData == null)
                 throw new Exception();
-            levelGenerator.InitializeLevel(levelGenerator.ReadLevelJSON());
+            JSONScore score = JSONScoreActions.getJSONScore(id);
+            if (score != null)
+            {
+                timeText.text = GetTimeScore(score.seconds);
+                pointText.text = score.points.ToString();
+            }
+            else
+            {
+                timeText.text = "--m--s";
+                pointText.text = "----";
+            }
+
+            levelGenerator.InitializeLevelEditor(levelGenerator.ReadLevelJSON());
         }
         catch (Exception e)
         {
