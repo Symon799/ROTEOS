@@ -170,11 +170,22 @@ public class CubePlacer : MonoBehaviour
                 ge.pos = pos;
                 ge.speed = speed;
                 ge.channel = channel;
-                Destroy(previewgroup);
-                previewgroup = Instantiate(groupSelected.gameObject, levelObj.transform);
-                previewgroup.GetComponentInChildren<BoxCollider>().enabled = false;
-                previewgroup.transform.position = ge.pos;
-                DrawLine(groupSelected.transform.position, previewgroup.transform.position);
+                if (previewgroup)
+                    Destroy(previewgroup);
+
+                if (dropScript.value == 1)
+                {
+                    previewgroup = Instantiate(groupSelected.gameObject, levelObj.transform);
+                    previewgroup.GetComponentInChildren<BoxCollider>().enabled = false;
+                    previewgroup.transform.position = ge.pos;
+                    DrawLine(groupSelected.transform.position, previewgroup.transform.position);
+                }
+                else if (dropScript.value == 2)
+                {
+                    previewgroup = Instantiate(groupSelected.gameObject, levelObj.transform);
+                    previewgroup.GetComponentInChildren<BoxCollider>().enabled = false;
+                    previewgroup.transform.rotation = Quaternion.Euler(ge.pos.x, ge.pos.y, ge.pos.z);
+                }
                 break;
             }
         }
@@ -598,13 +609,20 @@ public class CubePlacer : MonoBehaviour
         fieldX.text = cmp.pos.x.ToString();
         fieldY.text = cmp.pos.y.ToString();
         fieldZ.text = cmp.pos.z.ToString();
-
-        if (previewgroup)
-            Destroy(previewgroup);
-        previewgroup = Instantiate(groupSelected.gameObject, levelObj.transform);
-        previewgroup.GetComponentInChildren<BoxCollider>().enabled = false;
-        previewgroup.transform.position = new Vector3(cmp.pos.x, cmp.pos.y, cmp.pos.z);
-        DrawLine(groupSelected.transform.position, previewgroup.transform.position);
+        
+        if (dropScript.value == 1)
+        {
+            previewgroup = Instantiate(groupSelected.gameObject, levelObj.transform);
+            previewgroup.GetComponentInChildren<BoxCollider>().enabled = false;
+            previewgroup.transform.position = new Vector3(cmp.pos.x, cmp.pos.y, cmp.pos.z);
+            DrawLine(groupSelected.transform.position, previewgroup.transform.position);
+        }
+        else if (dropScript.value == 2)
+        {
+            previewgroup = Instantiate(groupSelected.gameObject, levelObj.transform);
+            previewgroup.GetComponentInChildren<BoxCollider>().enabled = false;
+            previewgroup.transform.rotation =  Quaternion.Euler(cmp.pos.x, cmp.pos.y, cmp.pos.z);
+        }
 
     }
 
@@ -643,7 +661,7 @@ public class CubePlacer : MonoBehaviour
         Vector3 finalPosition = grid.GetNearestPointOnGrid(clickPoint);
         Vector3 gridPosition = finalPosition / 2;
 
-        if (!isInGrid((int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.y))
+        if (!isInGrid((int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z))
             return;
 
         //A bloc already exist
@@ -681,13 +699,20 @@ public class CubePlacer : MonoBehaviour
     {
         var finalPosition = grid.GetNearestPointOnGrid(clickPoint);
         Vector3 gridPosition = finalPosition / 2;
-        
-        if (!isInGrid((int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.y)
-            && arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z])
-        {
-            currentBloc.SetActive(false);
-            return;
+        try{
+                if (!isInGrid((int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z)
+                    || arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z])
+                    {
+                        currentBloc.SetActive(false);
+                        return;
+                    }
         }
+        catch
+        {
+            Debug.Log("OUT OF BOUND");
+            Debug.Log((int)gridPosition.x + " " + (int)gridPosition.y + " " + (int)gridPosition.z);
+        }
+
 
         if (!currentBloc)
         {
@@ -739,6 +764,8 @@ public class CubePlacer : MonoBehaviour
         foreach(Group gr in groups)
         {
             GroupJson newGrp = new GroupJson();
+            Debug.Log(gr.pA);
+            Debug.Log(gr.pB);
             newGrp.pA = gr.pA;
             newGrp.pB = gr.pB;
             newGrp.component = new ComponentJson();
@@ -761,6 +788,7 @@ public class CubePlacer : MonoBehaviour
 
         string jsonFile = JsonUtility.ToJson(eltCollection);
         File.WriteAllText(Application.persistentDataPath + "/Levels/" + levelName, jsonFile);
+        Debug.Log(jsonFile);
         LevelGenerator.levelName = levelName;
     }
 

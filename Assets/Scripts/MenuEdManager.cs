@@ -31,6 +31,10 @@ public class MenuEdManager : MonoBehaviour {
         }
 	}
 
+    void Start() {
+        Directory.CreateDirectory(Path.Combine(Application.persistentDataPath, "Levels/"));
+    }
+
     private void initList()
     {
         UpdateList();
@@ -142,9 +146,12 @@ public class MenuEdManager : MonoBehaviour {
 
     public void saveLevelInDatabse()
     {
-        string filePath = Path.Combine(Application.dataPath, "Levels/level.json");
+        Debug.Log("SAVING");
+        string filePath = Path.Combine(Application.persistentDataPath, "Levels/" + LevelGenerator.levelName);
+        /*
         if (!File.Exists(filePath))
             return;
+        */
 
         string levelJsonStr = File.ReadAllText(filePath);
         if (levelToSave == null)
