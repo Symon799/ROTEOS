@@ -9,13 +9,13 @@ public class ButtonUpdater : MonoBehaviour {
 	public Text description;
 
 	public GameObject prefabDeletePopUp;
-	private Level level;
+	private LevelForEd level;
 	private GameObject menuEditor;
 	private GameObject editor;
 
 
 	// Use this for initialization
-	public void setValues(Level level, GameObject menuEditor, GameObject editor)
+	public void setValues(LevelForEd level, GameObject menuEditor, GameObject editor)
 	{
 		this.level = level;
 		this.title.text = level.namelevel;

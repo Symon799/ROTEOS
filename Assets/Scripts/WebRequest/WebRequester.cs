@@ -58,16 +58,25 @@ public class WebRequester : IWebRequester
         return request;
     }
 
-    public UnityWebRequest Post(string url, Dictionary<string, string> post)
+    public IEnumerator PutCompleteConnection(string url, string json)
     {
-        WWWForm form = new WWWForm();
-        foreach (KeyValuePair<string, string> arg in post)
+        var request = new UnityWebRequest(url, "PUT");
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+
+        yield return request.Send();
+
+        if (request.responseCode == 200)
         {
-            form.AddField(arg.Key, arg.Value);
+            ConnectionRequest example = JsonUtility.FromJson<ConnectionRequest>(request.downloadHandler.text);
+            Result resultObj = JsonUtility.FromJson<Result>(request.downloadHandler.text);
+            AccountManager.token = resultObj.token;
+            AccountManager.idCurrentUser = Convert.ToInt64(resultObj.id);
         }
-        UnityWebRequest request = UnityWebRequest.Post(url, form);
-        request.SendWebRequest();
-        return request;
+        Debug.Log(request.responseCode + " DownloadHandler Text : " + request.downloadHandler.text);
     }
 
     public IEnumerator PostCompleteConnection(string url, string json)
@@ -101,22 +110,5 @@ public class WebRequester : IWebRequester
         request.SetRequestHeader("Content-Type", "application/json");
 
         yield return request.Send();
-    }
-
-    public IEnumerator WaitForRequest(UnityWebRequest request)
-    {
-        yield return request.SendWebRequest();
-        if (request.isNetworkError || request.isHttpError)
-        {
-            Debug.Log(request.error);
-        }
-        else
-        {
-            // Show results as text
-            Debug.Log(request.downloadHandler.text);
-
-            // Or retrieve results as binary data
-            byte[] results = request.downloadHandler.data;
-        }
     }
 }

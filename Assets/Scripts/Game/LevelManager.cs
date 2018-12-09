@@ -47,6 +47,15 @@ public class LevelManager : MonoBehaviour
 
     }
 
+    public void resetLevel()
+    {
+        hasWon = false;
+        LevelEndingInterface.SetActive(false);
+        ScoreUI.SetActive(true);
+        nbScore = 0;
+        GameObject.FindGameObjectWithTag("Managers").GetComponentInChildren<PathRequestManager>().resetPathfinder();
+    }
+
     void InitializeLevel()
     {
         nbScore = 0;
@@ -92,14 +101,17 @@ public class LevelManager : MonoBehaviour
 			TextMeshProUGUI[] textmeshes = LevelEndingInterface.GetComponentsInChildren<TextMeshProUGUI>();
             textmeshes[0].SetText(nbScore.ToString());
 			textmeshes[1].SetText(GetTimeScore());
-            JSONScore newScore = new JSONScore();
-            newScore.id = LevelGenerator.levelId;
-            newScore.points = nbScore;
-            newScore.seconds = Convert.ToInt64(Time.fixedTime - startingTime);
-            List<JSONScore> list = new List<JSONScore>();
-            list.Add(newScore);
-            JSONScoreActions.addScore(list);
-            ScoreUI.SetActive(false);
+            if (!editorMode)
+            {
+                JSONScore newScore = new JSONScore();
+                newScore.id = LevelGenerator.levelId;
+                newScore.points = nbScore;
+                newScore.seconds = Convert.ToInt64(Time.fixedTime - startingTime);
+                List<JSONScore> list = new List<JSONScore>();
+                list.Add(newScore);
+                JSONScoreActions.addScore(list);
+                ScoreUI.SetActive(false);
+            }
         }
     }
 

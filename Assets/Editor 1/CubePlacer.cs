@@ -13,11 +13,10 @@ public class CubePlacer : MonoBehaviour
     public GameObject[] prefabs;
     public GameObject selectionBloc;
     public int lenght = 40;
-
-    public Level currentLevel;
+    public LevelForEd currentLevel;
     public GameObject menuEditor;
 	public GameObject editor;
-
+    public Material lineMaterial;
 
 
     //PRIVATE
@@ -46,6 +45,7 @@ public class CubePlacer : MonoBehaviour
     private Transform groupSelected;
     private Transform ScriptDetails;
     private GameObject interactableGameObject;
+    private GameObject previewgroup;
 
     public class Group
     {
@@ -68,7 +68,7 @@ public class CubePlacer : MonoBehaviour
 
     //JSON ----------------------------------------------------------JSON
     private ElementCollection eltCollection;
-    private string levelName = "/Levels/level.json";
+    private string levelName = "/level.json";
 
     
     //------------------------------------------------------------------
@@ -128,6 +128,7 @@ public class CubePlacer : MonoBehaviour
         dropButtonChannel.gameObject.transform.parent.gameObject.SetActive(false);
         ScriptDetails = popUpGroup.transform.Find("ScriptDetails");
         updateOutline();
+        updateMeshRenderer();
     }
 
     public void setBloc(int id)
@@ -169,6 +170,22 @@ public class CubePlacer : MonoBehaviour
                 ge.pos = pos;
                 ge.speed = speed;
                 ge.channel = channel;
+                if (previewgroup)
+                    Destroy(previewgroup);
+
+                if (dropScript.value == 1)
+                {
+                    previewgroup = Instantiate(groupSelected.gameObject, levelObj.transform);
+                    previewgroup.GetComponentInChildren<BoxCollider>().enabled = false;
+                    previewgroup.transform.position = ge.pos;
+                    DrawLine(groupSelected.transform.position, previewgroup.transform.position);
+                }
+                else if (dropScript.value == 2)
+                {
+                    previewgroup = Instantiate(groupSelected.gameObject, levelObj.transform);
+                    previewgroup.GetComponentInChildren<BoxCollider>().enabled = false;
+                    previewgroup.transform.rotation = Quaternion.Euler(ge.pos.x, ge.pos.y, ge.pos.z);
+                }
                 break;
             }
         }
@@ -395,6 +412,9 @@ public class CubePlacer : MonoBehaviour
         
         // Show component details only if not "No Script"
         ScriptDetails.gameObject.SetActive(dropScript.value != 0);
+
+        if (previewgroup && (!popUpGroup.activeSelf || dropScript.value == 0))
+            Destroy(previewgroup);
     }
 
     private void CubePlace(Ray ray)
@@ -404,12 +424,21 @@ public class CubePlacer : MonoBehaviour
         if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out hitInfo))
         {
             if (Input.GetMouseButton(0))
+            {
                 PlaceCubeNear(hitInfo.point);
-
-            if (Input.GetMouseButton(2))
+                currentBloc.SetActive(false);
+            }
+            else if (Input.GetMouseButton(2))
+            {
                 DeleteCubeNear(hitInfo.point);
-
-            ShowCubeNear(hitInfo.point);
+                currentBloc.SetActive(false);
+            }
+            else
+                ShowCubeNear(hitInfo.point);
+        }
+        else if (currentBloc)
+        {
+            currentBloc.SetActive(false);
         }
         if (Input.GetKeyDown("r"))
             rotateBlocY();
@@ -570,6 +599,9 @@ public class CubePlacer : MonoBehaviour
 
     private void setPopUpValues()
     {
+        if (previewgroup)
+            Destroy(previewgroup);
+
         var cmp = getComponentInGroups(groupSelected.gameObject);
         dropScript.value = cmp.id;
         dropChannel.value = cmp.channel;
@@ -577,6 +609,20 @@ public class CubePlacer : MonoBehaviour
         fieldX.text = cmp.pos.x.ToString();
         fieldY.text = cmp.pos.y.ToString();
         fieldZ.text = cmp.pos.z.ToString();
+        
+        if (dropScript.value == 1)
+        {
+            previewgroup = Instantiate(groupSelected.gameObject, levelObj.transform);
+            previewgroup.GetComponentInChildren<BoxCollider>().enabled = false;
+            previewgroup.transform.position = new Vector3(cmp.pos.x, cmp.pos.y, cmp.pos.z);
+            DrawLine(groupSelected.transform.position, previewgroup.transform.position);
+        }
+        else if (dropScript.value == 2)
+        {
+            previewgroup = Instantiate(groupSelected.gameObject, levelObj.transform);
+            previewgroup.GetComponentInChildren<BoxCollider>().enabled = false;
+            previewgroup.transform.rotation =  Quaternion.Euler(cmp.pos.x, cmp.pos.y, cmp.pos.z);
+        }
 
     }
 
@@ -603,10 +649,20 @@ public class CubePlacer : MonoBehaviour
         currentBloc.transform.Rotate(90, 0, 0, Space.World);
     }
 
+    private bool isInGrid(int x, int y,int z)
+    {
+        if (x < 0 || y < 0 || z < 0 || x > 19 || y > 19 || z > 19)
+            return false;
+        return true;
+    }
+
     private void PlaceCubeNear(Vector3 clickPoint)
     {
         Vector3 finalPosition = grid.GetNearestPointOnGrid(clickPoint);
         Vector3 gridPosition = finalPosition / 2;
+
+        if (!isInGrid((int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z))
+            return;
 
         //A bloc already exist
         if (arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z])
@@ -614,8 +670,10 @@ public class CubePlacer : MonoBehaviour
 
         arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z] = Instantiate(prefabs[currentId], finalPosition, Quaternion.identity);
         arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z].transform.parent = levelObj.transform;
+
         //Applying rotation after instantiation
-        arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z].transform.rotation = currentBloc.transform.rotation;
+        if (currentBloc)
+            arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z].transform.rotation = currentBloc.transform.rotation;
         
         //Add id
         idArr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z] = currentId;
@@ -640,12 +698,29 @@ public class CubePlacer : MonoBehaviour
     private void ShowCubeNear(Vector3 clickPoint)
     {
         var finalPosition = grid.GetNearestPointOnGrid(clickPoint);
+        Vector3 gridPosition = finalPosition / 2;
+        try{
+                if (!isInGrid((int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z)
+                    || arr[(int)gridPosition.x, (int)gridPosition.y, (int)gridPosition.z])
+                    {
+                        currentBloc.SetActive(false);
+                        return;
+                    }
+        }
+        catch
+        {
+            Debug.Log("OUT OF BOUND");
+            Debug.Log((int)gridPosition.x + " " + (int)gridPosition.y + " " + (int)gridPosition.z);
+        }
+
+
         if (!currentBloc)
         {
             currentBloc = Instantiate(prefabs[currentId], finalPosition, Quaternion.identity);
             currentBloc.transform.parent = levelObj.transform;
             SetTransparentRecursively(currentBloc.transform.gameObject, 2);
         }
+        currentBloc.SetActive(true);
         currentBloc.transform.position = finalPosition;
     }
 
@@ -689,6 +764,8 @@ public class CubePlacer : MonoBehaviour
         foreach(Group gr in groups)
         {
             GroupJson newGrp = new GroupJson();
+            Debug.Log(gr.pA);
+            Debug.Log(gr.pB);
             newGrp.pA = gr.pA;
             newGrp.pB = gr.pB;
             newGrp.component = new ComponentJson();
@@ -710,19 +787,13 @@ public class CubePlacer : MonoBehaviour
         }
 
         string jsonFile = JsonUtility.ToJson(eltCollection);
-        File.WriteAllText(Application.dataPath + levelName, jsonFile);
+        File.WriteAllText(Application.persistentDataPath + "/Levels/" + levelName, jsonFile);
+        Debug.Log(jsonFile);
+        LevelGenerator.levelName = levelName;
     }
 
     public void LoadJson()
-    {
-        //string content = File.ReadAllText(Application.dataPath + levelName);
-        //eltCollection = JsonUtility.FromJson<ElementCollection>(content);
-
-        eltCollection = currentLevel.jsonlevel;
-
-        //create the file for playMode to use
-        File.WriteAllText(Application.dataPath + levelName, JsonUtility.ToJson(eltCollection));
-
+    {     
         for (int x = 0; x < lenght; x++)
             for (int y = 0; y < lenght; y++)
                 for (int z = 0; z < lenght; z++)
@@ -740,6 +811,19 @@ public class CubePlacer : MonoBehaviour
         Destroy(currentSelection);
         popUpGroup.SetActive(false);
         addButton.SetActive(false);
+
+        if (currentLevel == null)
+            return;
+
+        //string content = File.ReadAllText(Application.dataPath + levelName);
+        //eltCollection = JsonUtility.FromJson<ElementCollection>(content);
+
+        eltCollection = currentLevel.jsonlevel;
+
+        //create the file for playMode to use
+        File.WriteAllText(Application.persistentDataPath + "/Levels/" + levelName, JsonUtility.ToJson(eltCollection));
+
+        
     
         updateOutline();
 
@@ -798,6 +882,7 @@ public class CubePlacer : MonoBehaviour
             newGrp.channel = gr.component.channel;
             groups.Add(newGrp);
             updateOutline();
+            updateMeshRenderer();
             setPopUpValues();
         }
 
@@ -814,6 +899,9 @@ public class CubePlacer : MonoBehaviour
     public void LaunchPlayMode()
     {
         WriteJson();
+        groupSelected = null;
+        updateOutline();
+        GameObject.FindGameObjectWithTag("Managers").GetComponentInChildren<MenuEdManager>().setLevelToSave(currentLevel);
         editor.SetActive(false);
         playMode.SetActive(true);
         //Destroy(GameObject.FindGameObjectWithTag("Player"));
@@ -824,5 +912,20 @@ public class CubePlacer : MonoBehaviour
         menuEditor.SetActive(true);
 		editor.SetActive(false);
         //Destroy(GameObject.FindGameObjectWithTag("Player"));
+    }
+
+    void DrawLine(Vector3 start, Vector3 end)
+    {
+        GameObject myLine = new GameObject();
+        myLine.transform.parent = previewgroup.transform;
+        LineRenderer lineRenderer = myLine.AddComponent<LineRenderer>();
+        lineRenderer.useWorldSpace = false;
+        lineRenderer.receiveShadows = false;
+        lineRenderer.material = lineMaterial;
+        lineRenderer.shadowCastingMode = 0;
+        LineRenderer lr = myLine.GetComponent<LineRenderer>();
+        lr.startWidth = 0.1f;
+        lr.SetPosition(0, start);
+        lr.SetPosition(1, end);
     }
 }

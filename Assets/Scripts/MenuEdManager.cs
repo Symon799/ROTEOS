@@ -2,19 +2,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 using Zenject;
 using System.IO;
 public class MenuEdManager : MonoBehaviour {
 
     [Inject]
 	private IWebRequester _webRequester;
-    private Levels levelsObj;
+    private LevelsForEd levelsObj;
     private bool initialized = false;
 
     public Transform grid;
     public GameObject levelButtonGroup;
     public GameObject menuEditor;
 	public GameObject editor;
+    private LevelForEd levelToSave = null;
+
+    // Save Tab
+    public InputField nameField;
+    public InputField descriptionField;
 	
 	// Update is called once per frame
 	void Update () {
@@ -25,15 +31,20 @@ public class MenuEdManager : MonoBehaviour {
         }
 	}
 
+    void Start() {
+        Directory.CreateDirectory(Path.Combine(Application.persistentDataPath, "Levels/"));
+    }
+
     private void initList()
     {
-        //StartCoroutine(addLevel(AccountManager.idCurrentUser));
-        StartCoroutine(getLevels(AccountManager.idCurrentUser));
+        UpdateList();
     }
 
     //working
 	public IEnumerator getLevels(long idUser)
     {
+        clearList();
+
         Debug.Log("Getting levels for user " + idUser + "...");
         string sailsUrl = "https://secure-sands-20186.herokuapp.com/getalllevelbyiduserwithjson";
 
@@ -46,55 +57,75 @@ public class MenuEdManager : MonoBehaviour {
         yield return new WaitUntil(() => resultRequest.isDone);
         Debug.Log(resultRequest.responseCode + " Result : " + resultRequest.downloadHandler.text);
 
-        levelsObj = JsonUtility.FromJson<Levels>("{\"levels\":" + resultRequest.downloadHandler.text + "}");
-        UpdateList();
-    }
+        levelsObj = JsonUtility.FromJson<LevelsForEd>("{\"levels\":" + resultRequest.downloadHandler.text + "}");
 
-    public void UpdateList()
-    {
-        foreach (Transform child in grid.transform)
-            GameObject.Destroy(child.gameObject);
-
-        foreach(Level lvl in levelsObj.levels)
+        foreach(LevelForEd lvl in levelsObj.levels)
         {
             GameObject button = Instantiate(levelButtonGroup, grid);
             button.GetComponent<ButtonUpdater>().setValues(lvl, menuEditor, editor);
         }
     }
 
-    //working
-    public IEnumerator addLevel(long idUser)
+    public void UpdateList()
     {
-        Debug.Log("Adding level to user " + idUser + "...");
+        StartCoroutine(getLevels(AccountManager.idCurrentUser));
+    }
+
+    private void clearList()
+    {
+        foreach (Transform child in grid.transform)
+            GameObject.Destroy(child.gameObject);
+    }
+
+    //working
+    public IEnumerator addLevel(string name, string description, string weather, int maxScore, string json)
+    {
+        clearList();
+        Debug.Log("Adding level to user " + AccountManager.idCurrentUser + "...");
         string sailsUrl = "https://immense-lake-57494.herokuapp.com/levels";
 
         AddLevel body = new AddLevel();
-        body.name = "Second Level";
-        string content = File.ReadAllText(Application.dataPath + "/Levels/level.json");
-        body.json = content;
+        body.name = name;
+        body.json = json;
         body.createdAt = null;
         body.updatedAt = null;
-        body.description = "This level is very simple and is simply a test";
-        body.weather_savior = "Clear";
-        body.maxScore = 1000;
-        body.idUser = idUser;
+        body.description = description;
+        body.weather_savior = weather;
+        body.maxScore = maxScore;
+        body.idUser = AccountManager.idCurrentUser;
 
         string bodyJson = JsonUtility.ToJson(body);
 
-        yield return StartCoroutine(_webRequester.PostCompleteConnection(sailsUrl, bodyJson));
-
+        yield return StartCoroutine(_webRequester.PostComplete(sailsUrl, bodyJson));
         Debug.Log("Level Added");
+        UpdateList();
     }
     public IEnumerator deleteLevel(long idLevel)
     {
+        clearList();
         Debug.Log("Deleting level " + idLevel + "...");
         string sailsUrl = "https://immense-lake-57494.herokuapp.com/levels";
 
-        UnityWebRequest resultRequest =_webRequester.Delete(sailsUrl, idLevel);
+
+        UnityWebRequest resultRequest = _webRequester.Delete(sailsUrl, idLevel);
 
         yield return new WaitUntil(() => resultRequest.isDone);
 
         Debug.Log("Level Deleted");
+    }
+
+    public IEnumerator deleteLevelButton(long idLevel, GameObject popUp)
+    {
+        Debug.Log("Deleting level " + idLevel + "...");
+        string sailsUrl = "https://immense-lake-57494.herokuapp.com/levels";
+
+
+        UnityWebRequest resultRequest = _webRequester.Delete(sailsUrl, idLevel);
+
+        yield return new WaitUntil(() => resultRequest.isDone);
+        Destroy(popUp);
+        Debug.Log("Level Deleted");
+        UpdateList();
     }
 
     public void LaunchEditorMode()
@@ -104,19 +135,57 @@ public class MenuEdManager : MonoBehaviour {
         GameObject.FindGameObjectWithTag("PlayMode").SetActive(false);
 	}
 
+    public void launchPopUpSave()
+    {
+        if (levelToSave != null)
+        {
+            nameField.text = levelToSave.namelevel;
+            descriptionField.text = levelToSave.descriptionlevel;
+        }
+    }
+
     public void saveLevelInDatabse()
     {
-        Debug.Log("Level Saved");
-        UpdateList();
+        Debug.Log("SAVING");
+        string filePath = Path.Combine(Application.persistentDataPath, "Levels/" + LevelGenerator.levelName);
+        /*
+        if (!File.Exists(filePath))
+            return;
+        */
 
-        editor.SetActive(true);
+        string levelJsonStr = File.ReadAllText(filePath);
+        if (levelToSave == null)
+            levelToSave = new LevelForEd();
+        else
+            StartCoroutine(deleteLevel(levelToSave.idlevel));
+
+        StartCoroutine(addLevel(nameField.text, descriptionField.text, "Clear", levelToSave.maxscorelevel, levelJsonStr));
+
         clearHolder();
         GameObject.FindGameObjectWithTag("PlayMode").SetActive(false);
+        menuEditor.SetActive(true);
     }
 
     private void clearHolder()
     {
+        GameObject.FindGameObjectWithTag("Managers").GetComponentInChildren<LevelManager>().resetLevel();
         Transform holder = GameObject.FindGameObjectWithTag("Holder").transform;
         foreach (Transform childTransform in holder) Destroy(childTransform.gameObject);
+        levelToSave = null;
+        nameField.text = "";
+        descriptionField.text = "";
+    }
+
+    public void launchNewLevel()
+    {
+		menuEditor.SetActive(false);
+		editor.SetActive(true);
+		editor.GetComponentInChildren<CubePlacer>().currentLevel = null;
+		editor.GetComponentInChildren<CubePlacer>().LoadJson();
+    }
+
+    public void setLevelToSave(LevelForEd save)
+    {
+        levelToSave = save;
     }
 }

@@ -29,7 +29,8 @@ public class AccountManager : MonoBehaviour
         {
             loginMenu.SetActive(false);
             mainMenu.SetActive(true);
-            menuManager.StartMenu();
+            if (menuManager)
+                menuManager.StartMenu();
         }
     }
 
@@ -62,7 +63,8 @@ public class AccountManager : MonoBehaviour
         {
             loginMenu.SetActive(false);
             mainMenu.SetActive(true);
-            StartCoroutine(updateLevels());
+            if (menuManager)
+                StartCoroutine(updateLevels());
         }
     }
 

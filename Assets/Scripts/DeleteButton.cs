@@ -12,7 +12,7 @@ public class DeleteButton : MonoBehaviour {
 	public void confirmDelete()
 	{
 		Debug.Log("DELETE ID " + id);
-		//GameObject.FindGameObjectWithTag("Managers").GetComponentInChildren<MenuEdManager>().deleteLevel(id);
+		StartCoroutine(GameObject.FindGameObjectWithTag("Managers").GetComponentInChildren<MenuEdManager>().deleteLevelButton(id, this.gameObject));
 	}
 
 	public void cancelDelete()
