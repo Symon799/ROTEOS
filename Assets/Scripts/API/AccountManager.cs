@@ -86,13 +86,13 @@ public class AccountManager : MonoBehaviour
 
         Levels allLevels = JsonUtility.FromJson<Levels>("{\"all\":" + allLevelsRequest.downloadHandler.text + "}");
 
-        foreach (Level level in allLevels.all)
+        foreach (Level level in allLevels.levels)
         {
             Debug.Log("OBJET LEVEL : " + JsonUtility.ToJson(level));
-            if (!currentMetaData.levels.Exists(x => x.id == Convert.ToInt64(level.id)))
+            if (!currentMetaData.levels.Exists(x => x.id == Convert.ToInt64(level.idlevel)))
             {
-                string filePath = Path.Combine(Application.persistentDataPath, "Levels/" + level.name);
-                File.WriteAllText(filePath, JsonUtility.ToJson(level.json));
+                string filePath = Path.Combine(Application.persistentDataPath, "Levels/" + level.namelevel);
+                File.WriteAllText(filePath, JsonUtility.ToJson(level.jsonlevel));
                 currentMetaData.levels.Add(MetaDataAction.LevelToMetaDataLevel(level));
             }
         }

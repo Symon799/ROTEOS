@@ -144,7 +144,7 @@ public class Movement : MonoBehaviour
             return;
         }
         if (Mathf.Abs(angle) > 45f)
-            characterRigidbody.velocity = characterRigidbody.velocity / 100;
+            characterRigidbody.velocity = characterRigidbody.velocity/100;
         //Debug.Log("SIGN : " + angle);
         if (Mathf.Sign(angle) == -1)
         {
@@ -161,13 +161,13 @@ public class Movement : MonoBehaviour
     void Move()
     {
         if (groundAngle >= maxGroundAngle || !isGrounded()) return;
-        characterRigidbody.AddForce(forward * velocity * Time.deltaTime, ForceMode.Acceleration);
+        characterRigidbody.AddForce(forward * velocity * Time.deltaTime);
     }
 
     void Jump()
     {   
         //if (isGrounded())
-            characterRigidbody.AddForce((personalNormal + forward) * Vector3.Distance(botPosition, CurrentNode.worldPosition) * velocity/2 * Time.deltaTime, ForceMode.Impulse);
+            characterRigidbody.AddForce((personalNormal + forward) * Vector3.Distance(botPosition, CurrentNode.worldPosition) * velocity/1.5f * Time.deltaTime * 100, ForceMode.Impulse);
     }
 
     void CalculateForward()

@@ -114,7 +114,7 @@ public class LevelManager : MonoBehaviour
         string bodyJson = JsonUtility.ToJson(body);*/
         string bodyJson = "";
 
-        yield return StartCoroutine(_webRequester.PostComplete2(sailsUrl, bodyJson));
+        yield return StartCoroutine(_webRequester.PostComplete(sailsUrl, bodyJson));
 
         Debug.Log("Bye Bye from postJson");
     }

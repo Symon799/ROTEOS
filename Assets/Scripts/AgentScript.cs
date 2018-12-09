@@ -33,8 +33,8 @@ public class AgentScript : MonoBehaviour
                 if (hit.collider.CompareTag("Water"))
                 {
                     Vector3 partPos = new Vector3(hit.point.x, hit.point.y, hit.point.z);
-                    GameObject water = Instantiate(waterParticles, partPos, waterParticles.transform.rotation);
-                    water.transform.parent = parent;
+                    //GameObject water = Instantiate(waterParticles, partPos, waterParticles.transform.rotation);
+                    //water.transform.parent = parent;
                 }
             }
         }

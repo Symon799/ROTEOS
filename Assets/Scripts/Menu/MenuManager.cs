@@ -133,7 +133,7 @@ public class MenuManager : MonoBehaviour
 
     public void LaunchLevel()
     {
-        SceneManager.LoadScene("Level");
+        LoadingScreen.Instance.Show(SceneManager.LoadSceneAsync("Level"));
     }
 }
 

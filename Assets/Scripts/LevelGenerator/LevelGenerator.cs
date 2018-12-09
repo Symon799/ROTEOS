@@ -40,13 +40,15 @@ public class LevelGenerator : MonoBehaviour
     {
         try
         {
+            Debug.Log("Create character");
             GameObject start = GameObject.FindGameObjectWithTag("Start");
             GameObject character = GameObject.Instantiate(playerPrefab);
             Vector3 position = new Vector3(0, 3, 0) + start.transform.position;
             character.transform.position = position;
         }
-        catch
+        catch (Exception e)
         {
+            Debug.LogError(e.ToString());
             return;
         }
     }
@@ -69,7 +71,7 @@ public class LevelGenerator : MonoBehaviour
                 foreach (var element in loadedData.elements)
                 {
                     Element elm = new Element(idToGameObject(element.id));
-                    elm.Position = new Vector3(element.position.x, element.position.y, element.position.z);
+                    elm.Position = new Vector3(element.position.x - 20.5f, element.position.y, element.position.z - 20.5f);
                     elm.Rotation = new Quaternion(element.rotation.x, element.rotation.y, element.rotation.z, element.rotation.w);
                     //Debug.Log(elm.Rotation);
                     Elements.Add(elm);
