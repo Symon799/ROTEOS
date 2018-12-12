@@ -18,6 +18,7 @@ public class LevelGenerator : MonoBehaviour
 
     [Inject]
     private DiContainer _diContainer;
+    public Transform target;
 
 
     public void InitializeGame()
@@ -153,6 +154,10 @@ public class LevelGenerator : MonoBehaviour
             {
                 lightManager.SetDistance(highestY);
                 lightManager.setPlanetary();
+            }
+            if (target != null)
+            {
+                parent.SetParent(target);
             }
             return true;
         }
