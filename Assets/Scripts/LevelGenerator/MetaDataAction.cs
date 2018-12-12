@@ -54,12 +54,12 @@ public class MetaDataAction {
     static public level LevelToMetaDataLevel(Level level)
     {
         level result = new level();
-        result.id = Convert.ToInt64(level.idlevel);
-        result.name = level.namelevel;
+        result.id = Convert.ToInt64(level.id);
+        result.name = level.name;
         result.hot = false;
         result.cold = false;
         result.rain = false;
-        switch (level.weather_saviorlevel)
+        switch (level.weather_savior)
         {
             case "Snow":
                 result.cold = true;

@@ -7,6 +7,7 @@ using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Zenject;
+using TMPro;
 
 public class MenuManager : MonoBehaviour
 {
@@ -21,6 +22,7 @@ public class MenuManager : MonoBehaviour
     public GameObject allWorldMenu;
     public GameObject worldMenu;
     public GameObject levelsMenu;
+    public TMP_Text levelText;
 
     public LevelGenerator levelGenerator;
     public Text timeText;
@@ -79,11 +81,13 @@ public class MenuManager : MonoBehaviour
                 instantiatedButton.GetComponent<Button>().onClick.AddListener(delegate { SelectLevel.SetActive(false); });
                 instantiatedButton.GetComponent<Button>().onClick.AddListener(delegate { LevelInfos.SetActive(true); });
                 instantiatedButton.GetComponent<Button>().onClick.AddListener(delegate { LoadLevel(level.name.ToString(), level.id); });
+                instantiatedButton.GetComponentInChildren<Text>().text = level.name;
                 IconActivator icons = instantiatedButton.GetComponent<IconActivator>();
                 if (level.cold)
                     icons.snow = true;
                 if (level.rain)
                     icons.rain = true;
+                icons.toUpdate();
             }
 
 
@@ -106,6 +110,7 @@ public class MenuManager : MonoBehaviour
     {
         LevelGenerator.levelName = name;
         LevelGenerator.levelId = id;
+        levelText.text = name;
         try
         {
             if (levelMetaData == null)

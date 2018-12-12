@@ -167,7 +167,7 @@ public class Movement : MonoBehaviour
     void Jump()
     {   
         //if (isGrounded())
-            characterRigidbody.AddForce((personalNormal + forward) * Vector3.Distance(botPosition, CurrentNode.worldPosition) * velocity/1.5f * Time.deltaTime * 100, ForceMode.Impulse);
+            characterRigidbody.AddForce((personalNormal + forward) * Vector3.Distance(botPosition, CurrentNode.worldPosition) * velocity/1.5f * Time.deltaTime, ForceMode.Impulse);
     }
 
     void CalculateForward()

@@ -26,14 +26,14 @@ public class LevelGenerator : MonoBehaviour
         SpawnCharacter();
     }
 
-    public void instanciate(Element Element)
+    public GameObject instanciate(Element Element)
     {
-        _diContainer.InstantiatePrefab(Element.toInstantiate(), Element.Position, Element.Rotation, parent);
+        return _diContainer.InstantiatePrefab(Element.toInstantiate(), Element.Position, Element.Rotation, parent);
     }
 
-    public void instanciate(GameObject GameObject)
+    public GameObject instanciate(GameObject GameObject)
     {
-        _diContainer.InstantiatePrefab(GameObject, GameObject.transform.localPosition, GameObject.transform.rotation, parent);
+        return _diContainer.InstantiatePrefab(GameObject, GameObject.transform.localPosition, GameObject.transform.rotation, parent);
     }
 
     public void SpawnCharacter()
@@ -53,7 +53,7 @@ public class LevelGenerator : MonoBehaviour
         }
     }
 
-    public List<Element> ReadLevelJSON()
+    public LevelToLoad ReadLevelJSON()
     {
         try
         {
@@ -67,6 +67,8 @@ public class LevelGenerator : MonoBehaviour
 
                 //Debug.Log(dataAsJson);
                 List<Element> Elements = new List<Element>();
+                List<Group> Groups = new List<Group>();
+                List<Interactable> Interactables = new List<Interactable>();
                 //Debug.Log(JsonUtility.ToJson(loadedData));
                 foreach (var element in loadedData.elements)
                 {
@@ -76,7 +78,34 @@ public class LevelGenerator : MonoBehaviour
                     //Debug.Log(elm.Rotation);
                     Elements.Add(elm);
                 }
-                return Elements;
+
+                foreach (var group in loadedData.groups)
+                {
+                    Group grp = new Group();
+                    grp.component = new Component();
+                    grp.component.channel = group.component.channel;
+                    grp.component.id = group.component.id;
+                    grp.component.position = new Vector3(group.component.position.x - 20.5f, group.component.position.y, group.component.position.z - 20.5f);
+                    grp.component.speed = group.component.speed;
+                    grp.pA = new Vector3((group.pA.x * 2) - 20.5f, group.pA.y * 2, (group.pA.z * 2) - 20.5f);
+                    grp.pB = new Vector3((group.pB.x * 2) - 20.5f, group.pB.y * 2, (group.pB.z * 2) - 20.5f);
+                    //Debug.Log(elm.Rotation);
+                    Groups.Add(grp);
+                }
+
+                foreach (var interactable in loadedData.interactables)
+                {
+                    Interactable inte = new Interactable();
+                    inte.position = new Vector3(interactable.pos.x - 20.5f, interactable.pos.y, interactable.pos.z - 20.5f);
+                    inte.channel = interactable.channel;
+                    //Debug.Log(elm.Rotation);
+                    Interactables.Add(inte);
+                }
+                LevelToLoad lvl = new LevelToLoad();
+                lvl.groups = Groups;
+                lvl.elements = Elements;
+                lvl.interactables = Interactables;
+                return lvl;
             }
             else
             {
@@ -93,7 +122,7 @@ public class LevelGenerator : MonoBehaviour
         return null;
     }
 
-    public bool InitializeLevel(List<Element> elements)
+    public bool InitializeLevel(LevelToLoad lvl)
     {
         try
         {
@@ -103,11 +132,22 @@ public class LevelGenerator : MonoBehaviour
 
             Debug.Log("Initialize level...");
             float highestY = 0;
-            foreach (var elm in elements)
+            List<GameObject> instanciated = new List<GameObject>();
+            foreach (var elm in lvl.elements)
             {
                 if (elm.Position.y > highestY)
                     highestY = elm.Position.y;
-                instanciate(elm);
+                instanciated.Add(instanciate(elm));
+            }
+            foreach (var grp in lvl.groups)
+            {
+                Debug.Log(JsonUtility.ToJson(grp));
+                createGroup(grp, instanciated);
+            }
+            foreach (var inte in lvl.interactables)
+            {
+                Debug.Log(JsonUtility.ToJson(inte));
+                applyChannel(inte, instanciated);
             }
             if (lightManager != null)
             {
@@ -121,10 +161,10 @@ public class LevelGenerator : MonoBehaviour
             Debug.LogError(e.ToString());
             return false;
         }
-        
+
     }
 
-    public bool InitializeLevelEditor(List<Element> elements)
+    public bool InitializeLevelEditor(LevelToLoad lvl)
     {
         try
         {
@@ -136,11 +176,11 @@ public class LevelGenerator : MonoBehaviour
                 }
             }
             Debug.Log("Initialize level...");
-            foreach (var elm in elements)
+            foreach (var elm in lvl.elements)
             {
-               Debug.Log(elm.toInstantiate().transform.localScale);
-               var obj = elm.toInstantiate();
-               obj.transform.localScale = new Vector3(1, 1 ,1);
+                Debug.Log(elm.toInstantiate().transform.localScale);
+                var obj = elm.toInstantiate();
+                obj.transform.localScale = new Vector3(1, 1, 1);
                 var tmp = GameObject.Instantiate(obj);
                 tmp.transform.SetParent(parent, false);
             }
@@ -158,4 +198,117 @@ public class LevelGenerator : MonoBehaviour
         return Objects[id];
     }
 
+    public bool isInBounds(Vector3 firstPoint, Vector3 secondPoint, Vector3 position)
+    {
+        Debug.Log("Position : " + position + " | pA : " + firstPoint + " | pB : " + secondPoint);
+        return (position.x <= Math.Max(firstPoint.x, secondPoint.x) && position.x >= Math.Min(firstPoint.x, secondPoint.x))
+            && (position.y <= Math.Max(firstPoint.y, secondPoint.y) && position.y >= Math.Min(firstPoint.y, secondPoint.y))
+            && (position.z <= Math.Max(firstPoint.z, secondPoint.z) && position.z >= Math.Min(firstPoint.z, secondPoint.z));
+    }
+
+    public Vector3 findCenter(Transform parent)
+    {
+        Vector3 result = new Vector3(0, 0, 0);
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            result += parent.GetChild(i).position;
+        }
+        if (parent.childCount > 0)
+            result = result / (parent.childCount);
+        return result;
+    }
+
+    public Vector3 findCenter(List<GameObject> childs)
+    {
+        Vector3 result = new Vector3(0, 0, 0);
+        foreach (var child in childs)
+        {
+            Debug.Log("Position : " + child.transform.position);
+            result += child.transform.position;
+            Debug.Log("Result : " + result);
+        }
+        if (childs.Count > 0)
+            result = result / (childs.Count);
+        Debug.Log("Final result : " + result);
+        return result;
+    }
+
+    public void createGroup(Group group, List<GameObject> objects)
+    {
+        GameObject result = new GameObject("Group");
+        List<GameObject> included = new List<GameObject>();
+        foreach (var tmp in objects)
+        {
+            if (isInBounds(group.pA, group.pB, tmp.transform.position))
+            {
+                included.Add(tmp);
+            }
+        }
+        result.transform.position = findCenter(included);
+        switch (group.component.id)
+        {
+            case 1:
+                Move move = result.AddComponent(typeof(Move)) as Move;
+                move.channel = (Channel)group.component.channel;
+                move.Speed = group.component.speed;
+                move.MoveToPosition = group.component.position;
+                break;
+            case 2: 
+                Rotate rotate = result.AddComponent(typeof(Rotate)) as Rotate;
+                rotate.channel = (Channel)group.component.channel;
+                rotate.Speed = group.component.speed;
+                rotate.RotateTo = group.component.position;
+                break;
+            default:
+                break;
+        }
+        GameObject instanciated = this.instanciate(result);
+        foreach (var child in included)
+        {
+            child.transform.parent = instanciated.transform;
+        }
+    }
+
+    public void applyChannel(Interactable interactable, List<GameObject> objects)
+    {
+        foreach (var obj in objects)
+        {
+            if (obj.transform.position == interactable.position)
+            {
+                obj.GetComponentInChildren<EventClient>().channel = (Channel)interactable.channel;
+                return;
+            }
+        }
+    }
+
+}
+
+public class Group
+{
+    public Vector3 pA;
+
+    public Vector3 pB;
+
+    public Component component;
+}
+
+public class Component
+{
+    public int id;
+    public Vector3 position;
+    public float speed;
+    public int channel;
+}
+
+public class Interactable 
+{
+    public Vector3 position;
+    public int channel;
+}
+
+public class LevelToLoad
+{
+    public List<Element> elements;
+    public List<Group> groups;
+    public List<Interactable> interactables;
 }

@@ -13,6 +13,12 @@ public class IconActivator : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
 	{
+		rainObject.SetActive(false);
+		snowObject.SetActive(false);
+	}
+
+	public void toUpdate()
+	{
 		if (rain && !snow)
 		{
 			rainObject.SetActive(true);

@@ -109,22 +109,27 @@ public class LevelManager : MonoBehaviour
                 newScore.seconds = Convert.ToInt64(Time.fixedTime - startingTime);
                 List<JSONScore> list = new List<JSONScore>();
                 list.Add(newScore);
-                JSONScoreActions.addScore(list);
+                if (JSONScoreActions.addScore(list))
+                {
+                    StartCoroutine(sendScores(newScore.points));
+                }
                 ScoreUI.SetActive(false);
             }
         }
     }
 
-    public IEnumerator sendScores()
+    public IEnumerator sendScores(long score)
     {
         Debug.Log("Welcome to send score");
-        string sailsUrl = "https://secure-sands-20186.herokuapp.com/score/envoi";
+        string sailsUrl = "https://immense-lake-57494.herokuapp.com/scores";
 
-        /*user body = new user();
-        body.username = accountInput.text;
-        body.password = passwordInput.text;
-        string bodyJson = JsonUtility.ToJson(body);*/
-        string bodyJson = "";
+        Score body = new Score();
+        body.user_id = Convert.ToString(AccountManager.idCurrentUser);
+        body.level_id = Convert.ToString(LevelGenerator.levelId);
+        body.score = score;
+        body.updatedAt = null;
+        body.createdAt = null;
+        string bodyJson = JsonUtility.ToJson(body);
 
         yield return StartCoroutine(_webRequester.PostComplete(sailsUrl, bodyJson));
 
@@ -137,4 +142,13 @@ public class LevelManager : MonoBehaviour
 	}
 
 
+}
+
+public class Score
+{
+    public string user_id;
+    public string level_id;
+    public long score;
+    public String createdAt;
+    public String updatedAt;
 }

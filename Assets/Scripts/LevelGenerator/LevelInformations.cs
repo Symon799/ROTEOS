@@ -7,6 +7,8 @@ using UnityEngine;
 public class JsonLevel
 {
 	public List<element> elements;
+
+	public List<group> groups;
 	public List<interactable> interactables;
 }
 
@@ -41,3 +43,21 @@ public class interactable
 	public position pos;
 	public int channel;
 }
+
+[Serializable]
+public class group
+{
+	public position pA;
+	public position pB;
+	public component component;
+}
+
+[Serializable]
+public class component
+{
+	public int id;
+	public position position;
+	public float speed;
+	public int channel;
+}
+

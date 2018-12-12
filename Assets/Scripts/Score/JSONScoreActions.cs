@@ -21,7 +21,9 @@ public class JSONScoreActions
                 Debug.Log(JsonUtility.ToJson(loadedData));
                 return loadedData;
             }
-            return new JSONScores();
+            JSONScores result = new JSONScores();
+            result.scores = new List<JSONScore>();
+            return result;
         }
         catch (Exception e)
         {
@@ -49,6 +51,7 @@ public class JSONScoreActions
 
     static public bool addScore(List<JSONScore> jSONScores)
     {
+        bool scored = false;
         try
         {
             JSONScores tmp = getJSONScores();
@@ -61,17 +64,19 @@ public class JSONScoreActions
                     {
                         cur.points = scr.points;
                         cur.seconds = scr.seconds;
+                        scored = true;
                     }
                 }
                 else
                 {
                     tmp.scores.Add(scr);
+                    scored = true;
                 }
             }
 
             string filePath = Path.Combine(Application.persistentDataPath, "Levels/scores");
             File.WriteAllText(filePath, JsonUtility.ToJson(tmp));
-            return true;
+            return scored;
         }
         catch (Exception e)
         {
